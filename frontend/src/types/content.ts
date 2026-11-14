@@ -144,11 +144,26 @@ export interface FooterContent {
   note: string
 }
 
+/** Formatting set in the visual editor for one element (null = design default). */
+export interface ElementStyle {
+  color?: string | null
+  /** 0.75–1.5, relative to the design. */
+  fontScale?: number | null
+  fontWeight?: number | null
+  textAlign?: 'start' | 'center' | 'end' | null
+  fontFamily?: 'sans' | 'serif' | null
+}
+
 export interface AppearanceSettings {
   /** Hex accent colour; null in snapshots published before it existed. */
   accentColor?: string | null
   backgroundStyle?: 'ivory' | 'cream' | 'mist' | null
   headingFont?: 'sans' | 'serif' | null
+  /** Custom page background; overrides backgroundStyle. */
+  backgroundColor?: string | null
+  textColor?: string | null
+  bodyFont?: 'sans' | 'serif' | null
+  cornerStyle?: 'sharp' | 'soft' | 'round' | null
   heroSceneEnabled: boolean
   motionEnabled: boolean
 }
@@ -179,4 +194,6 @@ export interface PortfolioContent {
   footer: FooterContent
   appearance: AppearanceSettings
   seo: SeoSettings
+  /** Per-element formatting keyed by editor id (absent in older snapshots). */
+  styles?: Record<string, ElementStyle> | null
 }

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@/utils/zod'
 
 /**
  * Declarative form fields. A page describes its fields once; the form engine
@@ -53,7 +53,12 @@ export interface GroupFieldDef extends Base {
   minItems?: number
 }
 
-export type FieldDef = SimpleFieldDef | ListFieldDef | GroupFieldDef
+/** A subheading inside a form (no value). */
+export interface HeadingDef extends Base {
+  type: 'heading'
+}
+
+export type FieldDef = SimpleFieldDef | ListFieldDef | GroupFieldDef | HeadingDef
 
 export type FormValues = Record<string, unknown>
 
@@ -104,6 +109,7 @@ function countLimits<T extends z.ZodArray<z.ZodType>>(schema: T, min?: number, m
 export function buildSchema(fields: FieldDef[]) {
   const shape: Record<string, z.ZodType> = {}
   for (const field of fields) {
+    if (field.type === 'heading') continue
     if (field.type === 'list') {
       let item = z.string().trim().min(1, 'Fill this in or remove it.')
       if (field.max) item = item.max(field.max, `Keep this under ${field.max} characters.`)
@@ -137,6 +143,7 @@ function simpleFromForm(field: SimpleFieldDef, value: unknown) {
 export function toFormValues(fields: FieldDef[], source: FormValues): FormValues {
   const values: FormValues = {}
   for (const field of fields) {
+    if (field.type === 'heading') continue
     const raw = source[field.name]
     if (field.type === 'list') {
       values[field.name] = ((raw as string[] | null) ?? []).map((value) => ({ value }))
@@ -155,6 +162,7 @@ export function toFormValues(fields: FieldDef[], source: FormValues): FormValues
 export function fromFormValues(fields: FieldDef[], values: FormValues): FormValues {
   const result: FormValues = {}
   for (const field of fields) {
+    if (field.type === 'heading') continue
     const raw = values[field.name]
     if (field.type === 'list') {
       result[field.name] = ((raw as { value: string }[]) ?? []).map((row) => row.value.trim())

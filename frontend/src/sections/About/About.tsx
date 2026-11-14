@@ -6,12 +6,14 @@ import { SectionHeading } from '@/components/UI/SectionHeading'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import { cn } from '@/utils/cn'
 import { STAGGER } from '@/utils/motion'
+import { useEditables } from '@/editor/editable'
 
 /* Slight alternating tilt, echoing the numbered tiles in the reference. */
 const TILTS = ['lg:-rotate-2', 'lg:rotate-1 lg:-translate-y-4', 'lg:rotate-2']
 
 export function About() {
   const { about } = usePortfolioContent()
+  const edit = useEditables()
   if (!about) return null
 
   return (
@@ -33,6 +35,7 @@ export function About() {
             {about.paragraphs.map((paragraph, index) => (
               <p
                 key={index}
+                {...edit(`about.paragraph.${index}`)}
                 className={cn('text-pretty', index === 0 ? 'text-xl text-ink sm:text-2xl' : 'text-lg text-muted')}
               >
                 {paragraph}
@@ -42,8 +45,8 @@ export function About() {
 
           <Reveal delay={STAGGER}>
             <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-forest/15 pt-8">
-              {about.facts.map((fact) => (
-                <div key={fact.id}>
+              {about.facts.map((fact, index) => (
+                <div key={fact.id} {...edit(`about.fact.${index}`)}>
                   <dt className="font-serif text-base text-muted italic">{fact.label}</dt>
                   <dd className="mt-0.5 text-lg font-medium text-forest">{fact.value}</dd>
                 </div>
@@ -55,13 +58,16 @@ export function About() {
 
       <div className="mt-20 md:mt-28">
         <Reveal>
-          <h3 className="text-center text-3xl tracking-tight text-ink sm:text-4xl">{about.approachHeading}</h3>
+          <h3 {...edit('about.approachHeading')} className="text-center text-3xl tracking-tight text-ink sm:text-4xl">
+            {about.approachHeading}
+          </h3>
         </Reveal>
         <ol className="mx-auto mt-10 grid max-w-4xl gap-5 sm:grid-cols-3 lg:gap-7">
           {about.approach.map((step, index) => (
             <li key={step.id}>
               <Reveal delay={index * STAGGER}>
                 <Card
+                  {...edit(`about.step.${index}`)}
                   padding="lg"
                   className={cn('h-full transition-transform duration-500 ease-soft hover:rotate-0', TILTS[index % 3])}
                 >

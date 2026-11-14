@@ -5,7 +5,7 @@ import type { FieldDef } from '../components/form/fieldTypes'
 import { SectionCard } from '../components/SectionCard'
 import { PageHeader } from '../components/ui'
 
-const FIELDS: FieldDef[] = [
+export const EDUCATION_FIELDS: FieldDef[] = [
   { name: 'degree', label: 'Degree', type: 'text', required: true, max: 160, wide: true },
   { name: 'field', label: 'Field of study', type: 'text', required: true, max: 200, wide: true },
   { name: 'institution', label: 'Institution', type: 'text', max: 200 },
@@ -25,7 +25,7 @@ export function EducationPage() {
           resource="education"
           noun="entry"
           title="Education entries"
-          fields={FIELDS}
+          fields={EDUCATION_FIELDS}
           blank={BLANK}
           list={adminApi.education}
           create={adminApi.createEducation}

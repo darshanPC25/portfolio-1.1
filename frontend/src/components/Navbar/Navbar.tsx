@@ -9,6 +9,8 @@ import { useScrolled } from '@/hooks/useScrolled'
 import { cn } from '@/utils/cn'
 import { DURATION, EASE_SOFT } from '@/utils/motion'
 import { useMotionDisabled } from '@/hooks/useMotionDisabled'
+import { ThemeToggle } from '@/components/UI/ThemeToggle'
+import { useEditables } from '@/editor/editable'
 
 const PILL_SPRING = { type: 'spring', stiffness: 380, damping: 34 } as const
 
@@ -31,6 +33,7 @@ export function Navbar() {
   const active = useActiveSection(navigation.map((item) => item.id))
   const reduceMotion = useMotionDisabled()
   const menuId = useId()
+  const edit = useEditables()
 
   // Thin reading-progress line along the bottom of the bar.
   const { scrollYProgress } = useScroll()
@@ -81,8 +84,9 @@ export function Navbar() {
       >
         <a
           href="#home"
+          {...edit('profile.preferredName')}
           className="font-serif text-2xl leading-none text-forest italic"
-          aria-label={`${profile.fullName} — back to top`}
+          aria-label={`${profile.preferredName} (${profile.fullName}) — back to top`}
         >
           {profile.preferredName}
         </a>
@@ -95,6 +99,7 @@ export function Navbar() {
                 <li key={item.id}>
                   <a
                     href={`#${item.id}`}
+                    {...edit(`section.${item.id}.navLabel`)}
                     aria-current={isActive ? 'true' : undefined}
                     className={cn(
                       'relative block rounded-full px-3.5 py-2 text-sm font-medium transition-colors duration-300',
@@ -117,7 +122,8 @@ export function Navbar() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <ThemeToggle />
           <Button href={hero.primaryCta.href} size="sm" className="hidden sm:inline-flex">
             {hero.primaryCta.label}
           </Button>

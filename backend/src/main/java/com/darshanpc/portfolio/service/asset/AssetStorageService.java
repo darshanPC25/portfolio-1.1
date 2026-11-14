@@ -187,7 +187,14 @@ public class AssetStorageService {
                 .toString()
                 .strip();
         if (name.isEmpty()) {
-            name = "file." + extension;
+            name = "file";
+        }
+        // The extension always matches the detected type, so a PNG uploaded as
+        // "page.html" is offered for download as "page.html.png", never as HTML.
+        String suffix = "." + extension;
+        if (!name.toLowerCase(java.util.Locale.ROOT).endsWith(suffix)
+                && !(extension.equals("jpg") && name.toLowerCase(java.util.Locale.ROOT).endsWith(".jpeg"))) {
+            name = name + suffix;
         }
         return name.length() > 200 ? name.substring(name.length() - 200) : name;
     }

@@ -7,6 +7,7 @@ import com.darshanpc.portfolio.entity.enums.SectionKey;
 import com.darshanpc.portfolio.mapper.PortfolioSnapshotMapper;
 import com.darshanpc.portfolio.repository.AboutContentRepository;
 import com.darshanpc.portfolio.repository.EducationRepository;
+import com.darshanpc.portfolio.repository.ElementStyleRepository;
 import com.darshanpc.portfolio.repository.ExperienceRepository;
 import com.darshanpc.portfolio.repository.HeroContentRepository;
 import com.darshanpc.portfolio.repository.PortfolioAppearanceRepository;
@@ -45,6 +46,7 @@ public class PortfolioSnapshotAssembler {
     private final SocialLinkRepository socialLinks;
     private final PortfolioAppearanceRepository appearances;
     private final SeoSettingsRepository seoSettings;
+    private final ElementStyleRepository elementStyles;
     private final PortfolioSnapshotMapper mapper;
 
     @Transactional(readOnly = true)
@@ -90,7 +92,10 @@ public class PortfolioSnapshotAssembler {
                         .toList(),
                 mapper.footer(profile),
                 mapper.appearance(appearance),
-                mapper.seo(seo));
+                mapper.seo(seo),
+                elementStyles.findAll().stream().collect(java.util.stream.Collectors.toMap(
+                        com.darshanpc.portfolio.entity.ElementStyle::getElementKey, mapper::style,
+                        (a, b) -> a, java.util.TreeMap::new)));
     }
 
     private static <T> T section(

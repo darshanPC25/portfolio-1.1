@@ -51,7 +51,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             role={toast.tone === 'error' ? 'alert' : 'status'}
             className={cn(
               'pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border px-4 py-3 text-sm shadow-lift',
-              toast.tone === 'error' ? 'border-danger/20 bg-[#fbeeea] text-danger' : 'border-sage/60 bg-ivory text-forest',
+              toast.tone === 'error' ? 'border-danger/20 bg-[#fbeeea] dark:bg-[#3a1f19] text-danger' : 'border-sage/60 bg-ivory text-forest',
             )}
           >
             {toast.tone === 'error' ? (

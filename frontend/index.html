@@ -9,9 +9,29 @@
       content="Paridarshan Sahoo (Darshan) — Software Developer and Java Backend Developer building scalable backend systems and meaningful digital experiences."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Sets light/dark before the first paint (see src/hooks/useTheme.ts). -->
+    <script src="/theme-init.js"></script>
     <title>Darshan — Software Developer</title>
+    <!--
+      Defaults for link previews. Social crawlers do not run JavaScript, so these
+      static tags are what they see; the published SEO settings replace them in
+      the browser (components/UI/SeoHead.tsx).
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Darshan" />
+    <meta property="og:title" content="Darshan — Software Developer" />
+    <meta
+      property="og:description"
+      content="Paridarshan Sahoo (Darshan) — Software Developer and Java Backend Developer building scalable backend systems and meaningful digital experiences."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
+    <noscript>
+      <p style="font-family: system-ui, sans-serif; padding: 2rem; color: #222a1b; background: #f8f5ec">
+        Darshan — Software Developer. This portfolio needs JavaScript to display.
+      </p>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

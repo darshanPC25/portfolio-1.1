@@ -3,9 +3,11 @@ import { Section } from '@/components/UI/Section'
 import { SectionHeading } from '@/components/UI/SectionHeading'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import { WavePanel } from './WavePanel'
+import { useEditables } from '@/editor/editable'
 
 export function Journey() {
   const { journey } = usePortfolioContent()
+  const edit = useEditables()
   if (!journey) return null
   const entries = [...journey.entries].sort((a, b) => a.order - b.order)
 
@@ -28,6 +30,7 @@ export function Journey() {
                 {entries.map((entry) => (
                   <li
                     key={entry.id}
+                    {...edit(`journey.${entry.id}`)}
                     className="grid gap-x-6 gap-y-1 border-t border-ivory/20 py-6 last:border-b sm:grid-cols-[5.5rem_1fr]"
                   >
                     <p className="font-serif text-xl text-sage italic">{entry.period}</p>

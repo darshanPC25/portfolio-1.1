@@ -15,3 +15,12 @@ portfolio:
       window: 1m
   storage:
     directory: target/test-uploads
+spring:
+  jpa:
+    properties:
+      hibernate:
+        # Lets PerformanceAndIntegrityTest count SQL statements.
+        generate_statistics: true
+logging:
+  level:
+    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: WARN

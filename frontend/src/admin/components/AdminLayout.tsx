@@ -8,6 +8,7 @@ import {
   GraduationCap,
   LayoutDashboard,
   LogOut,
+  MousePointerClick,
   Mail,
   Menu,
   Palette,
@@ -26,6 +27,7 @@ import { cn } from '@/utils/cn'
 import { adminApi } from '../api/adminApi'
 import { adminKeys } from '../api/queries'
 import type { AdminSession } from '../api/types'
+import { ThemeToggle } from '@/components/UI/ThemeToggle'
 import { PublishControl } from './PublishControl'
 import { StudioButton } from './ui'
 
@@ -52,6 +54,14 @@ function Sidebar({ unread, onNavigate }: { unread: number; onNavigate?: () => vo
       <Link to="/admin" onClick={onNavigate} className="px-3 pt-1 pb-6">
         <span className="block font-serif text-3xl leading-none text-forest italic">Darshan</span>
         <span className="mt-1 block text-xs font-medium tracking-[0.18em] text-muted uppercase">Portfolio Studio</span>
+      </Link>
+      <Link
+        to="/admin/editor"
+        onClick={onNavigate}
+        className="mb-4 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-linear-to-b from-moss to-forest px-3 font-medium text-ivory shadow-button hover:from-forest hover:to-pine"
+      >
+        <MousePointerClick size={18} aria-hidden="true" />
+        Edit Website
       </Link>
       <ul className="flex flex-1 flex-col gap-0.5 overflow-y-auto pb-4">
         {NAV.map(({ to, label, icon: Icon }) => (
@@ -88,6 +98,12 @@ export function AdminLayout({ session }: { session: AdminSession }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
   const location = useLocation()
+
+  // Each studio page gets its own tab title ("Projects — Portfolio Studio").
+  useEffect(() => {
+    const page = NAV.find((item) => item.to === location.pathname)
+    document.title = page ? `${page.label} — Portfolio Studio` : 'Portfolio Studio'
+  }, [location.pathname])
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const overview = useQuery({ queryKey: adminKeys.overview, queryFn: adminApi.overview })
@@ -164,6 +180,7 @@ export function AdminLayout({ session }: { session: AdminSession }) {
             </button>
             <div className="flex-1" />
             <PublishControl />
+            <ThemeToggle className="size-10" />
             <a
               href="/"
               target="_blank"

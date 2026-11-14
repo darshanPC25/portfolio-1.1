@@ -7,6 +7,7 @@ import { Button } from '@/components/Buttons/Button'
 import { getApiProblem } from '@/services/apiClient'
 import { type ContactMessage, contactMessageSchema, sendContactMessage } from '@/services/contactService'
 import { cn } from '@/utils/cn'
+import { useEditables } from '@/editor/editable'
 
 const fieldClasses =
   'w-full rounded-2xl border bg-ivory/80 px-4 py-3 text-base text-ink placeholder:text-muted/70 ' +
@@ -48,6 +49,7 @@ type InputProps = InputHTMLAttributes<HTMLInputElement>
 type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>
 
 export function ContactForm({ heading, submitLabel }: { heading: string; submitLabel: string }) {
+  const edit = useEditables()
   const {
     register,
     handleSubmit,
@@ -85,7 +87,9 @@ export function ContactForm({ heading, submitLabel }: { heading: string; submitL
       onSubmit={handleSubmit((values) => mutation.mutate(values))}
       className="surface-clay relative flex flex-col gap-5 rounded-panel p-6 text-left sm:p-9"
     >
-      <h3 className="text-2xl tracking-tight text-ink">{heading}</h3>
+      <h3 {...edit('contact.formHeading')} className="text-2xl tracking-tight text-ink">
+        {heading}
+      </h3>
 
       {/* Anti-spam trap: hidden from people and assistive technology; bots tend to fill it. */}
       <div aria-hidden="true" className="absolute -left-[9999px] size-px overflow-hidden">
@@ -129,7 +133,7 @@ export function ContactForm({ heading, submitLabel }: { heading: string; submitL
       </Field>
 
       <div className="flex flex-wrap items-center gap-4">
-        <Button type="submit" size="lg" disabled={mutation.isPending} icon={<Send size={17} />}>
+        <Button {...edit('contact.submitLabel')} type="submit" size="lg" disabled={mutation.isPending} icon={<Send size={17} />}>
           {mutation.isPending ? 'Sending…' : submitLabel}
         </Button>
 

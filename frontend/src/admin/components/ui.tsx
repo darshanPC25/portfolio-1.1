@@ -129,8 +129,8 @@ export function StatusPill({ tone, children }: { tone: 'green' | 'muted' | 'ambe
   const tones = {
     green: 'bg-mist text-forest border-sage/70',
     muted: 'bg-cream text-muted border-sand',
-    amber: 'bg-[#f7ecd2] text-[#7a5a14] border-[#e7d4a6]',
-    red: 'bg-[#fbeeea] text-danger border-danger/20',
+    amber: 'bg-[#f7ecd2] text-[#7a5a14] border-[#e7d4a6] dark:bg-[#33290f] dark:text-[#e8c873] dark:border-[#5a4818]',
+    red: 'bg-[#fbeeea] dark:bg-[#3a1f19] text-danger border-danger/20',
   }
   return (
     <span className={cn('inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium', tones[tone])}>
@@ -143,7 +143,7 @@ export function StatusPill({ tone, children }: { tone: 'green' | 'muted' | 'ambe
 export function LoadState({ error, onRetry }: { error?: string | null; onRetry?: () => void }) {
   if (error) {
     return (
-      <div role="alert" className="rounded-card border border-danger/20 bg-[#fbeeea] p-6 text-danger">
+      <div role="alert" className="rounded-card border border-danger/20 bg-[#fbeeea] dark:bg-[#3a1f19] p-6 text-danger">
         <p>{error}</p>
         {onRetry && (
           <StudioButton size="sm" variant="danger" className="mt-4" onClick={onRetry}>

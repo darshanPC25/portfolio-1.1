@@ -17,7 +17,7 @@ export const PROJECT_STATUS_OPTIONS = [
   { value: 'PLANNED', label: 'Planned' },
 ]
 
-const FIELDS: FieldDef[] = [
+export const PROJECT_FIELDS: FieldDef[] = [
   { name: 'name', label: 'Project name', type: 'text', required: true, max: 160, wide: true },
   {
     name: 'slug',
@@ -106,7 +106,7 @@ export function ProjectsPage() {
           noun="project"
           title="Projects"
           description="Hidden projects stay in the draft but are not shown on the site. Use the arrows to change the order."
-          fields={FIELDS}
+          fields={PROJECT_FIELDS}
           blank={BLANK}
           list={adminApi.projects}
           create={adminApi.createProject}

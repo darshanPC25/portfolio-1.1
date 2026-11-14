@@ -34,3 +34,36 @@ Open http://localhost:5173. Portfolio Studio is at http://localhost:5173/admin (
 **Login** link in the footer); sign in with the `ADMIN_EMAIL` / `ADMIN_PASSWORD` you set, then
 remove `ADMIN_PASSWORD` from `backend/.env`. Details: [backend/README.md](backend/README.md),
 [frontend/README.md](frontend/README.md), [database/README.md](database/README.md).
+
+## Tests
+
+```bash
+cd backend && ./mvnw test        # 90 tests, needs Docker (Testcontainers PostgreSQL 17)
+cd frontend && npm test          # 24 unit tests (Vitest)
+cd frontend && npm run build     # type-check + production build
+```
+
+Latest results (Batch 6, 14 Nov 2026): backend 90/90 pass, frontend 24/24 pass, build passes.
+Lighthouse against the production Docker stack: Accessibility 100, Best Practices 100,
+SEO 100 (mobile and desktop); Performance 81–90 desktop, 50–54 mobile (simulated slow phone).
+
+## Deployment
+
+`docker-compose.prod.yml` runs PostgreSQL, the backend and nginx (site + `/api` proxy) from
+`backend/Dockerfile` and `frontend/Dockerfile`. Step-by-step instructions, environment
+variables, migrations and backups: [DEPLOYMENT.md](DEPLOYMENT.md).
+
+## Known limitations
+
+- Mobile Lighthouse performance is about 50: the 3D hero (three.js, ~270 kB gzipped) and the
+  animation libraries cost main-thread time on slow phones. The scene now loads only after the
+  page is idle; static shapes show until then.
+- Studio sessions live in server memory: restarting the backend signs the admin out, and the
+  backend runs as a single instance (rate limits are per instance too).
+- Uploaded images are served as uploaded (no resizing or WebP conversion); replaced files stay on
+  disk.
+- Link previews on social sites use the static tags in `index.html`, not the SEO settings from the
+  Studio (crawlers do not run JavaScript).
+- No email notification for contact messages; one shared draft for all editors.
+- Dark mode is a per-visitor choice (default light); it is not configurable from the Studio, and
+  the Appearance background/text colours apply to the light theme only.

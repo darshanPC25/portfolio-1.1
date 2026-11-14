@@ -1,3 +1,5 @@
+import { normalizeContent } from '@/services/contentService'
+import type { ElementStyle, PortfolioContent } from '@/types/content'
 import { adminClient, setCsrfToken } from './adminClient'
 import type {
   About,
@@ -119,6 +121,13 @@ export const adminApi = {
   updateSocialLink: (id: string, body: unknown) => data<SocialLink>(adminClient.put(`/social-links/${id}`, body)),
   deleteSocialLink: (id: string) => adminClient.delete(`/social-links/${id}`).then(() => undefined),
   reorderSocialLinks: (ids: string[]) => data<SocialLink[]>(adminClient.put('/social-links/order', { ids })),
+
+  // Visual editor
+  /** The draft, in the public content shape (what the site would show if published now). */
+  preview: () => data<PortfolioContent>(adminClient.get('/preview')).then(normalizeContent),
+  elementStyles: () => data<Record<string, ElementStyle>>(adminClient.get('/element-styles')),
+  putElementStyle: (key: string, style: ElementStyle) =>
+    adminClient.put(`/element-styles/${encodeURIComponent(key)}`, style).then(() => undefined),
 
   // Messages
   messages: (status: MessageStatus | null, page: number) =>

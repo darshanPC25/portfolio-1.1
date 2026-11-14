@@ -7,6 +7,9 @@ import { adminApi } from './api/adminApi'
 import { UNAUTHORIZED_EVENT } from './api/adminClient'
 import { adminKeys } from './api/queries'
 import { AdminLayout } from './components/AdminLayout'
+import { DraftPreviewPage } from './editor/DraftPreviewPage'
+import { EditorCanvas } from './editor/EditorCanvas'
+import { VisualEditor } from './editor/VisualEditor'
 import { ToastProvider } from './components/Toast'
 import { AboutPage } from './pages/AboutPage'
 import { AppearancePage } from './pages/AppearancePage'
@@ -53,6 +56,10 @@ export default function AdminApp() {
   return (
     <ToastProvider>
       <Routes>
+        {/* Full-screen editor, its canvas frame and the draft preview sit outside the studio frame. */}
+        <Route path="editor" element={<VisualEditor />} />
+        <Route path="editor/canvas" element={<EditorCanvas />} />
+        <Route path="preview" element={<DraftPreviewPage />} />
         <Route element={<AdminLayout session={session.data} />}>
           <Route index element={<OverviewPage />} />
           <Route path="profile" element={<ProfilePage />} />

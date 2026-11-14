@@ -37,6 +37,15 @@ public class PublishedPortfolioService {
         return load().content();
     }
 
+    /**
+     * Version number of the latest publication. A version's snapshot never
+     * changes, so it doubles as the HTTP validator (ETag) for public responses.
+     */
+    @Transactional(readOnly = true)
+    public int currentVersion() {
+        return publications.findLatestVersionNumber().orElseThrow(ContentNotPublishedException::new);
+    }
+
     /** True when the latest publication uses the uploaded file with this id. */
     @Transactional(readOnly = true)
     public boolean referencesAsset(java.util.UUID assetId) {

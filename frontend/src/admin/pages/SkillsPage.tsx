@@ -14,7 +14,7 @@ import { EmptyState, IconButton, LoadState, PageHeader, Panel, StatusPill, Studi
 
 const KEY = adminKeys.resource('skills')
 
-const ICONS = [
+export const ICONS = [
   { value: 'CODE', label: 'Code (languages)' },
   { value: 'SERVER', label: 'Server (backend)' },
   { value: 'DATABASE', label: 'Database (data)' },

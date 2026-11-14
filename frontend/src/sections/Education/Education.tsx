@@ -6,9 +6,11 @@ import { Section } from '@/components/UI/Section'
 import { SectionHeading } from '@/components/UI/SectionHeading'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import { STAGGER } from '@/utils/motion'
+import { useEditables } from '@/editor/editable'
 
 export function Education() {
   const { education } = usePortfolioContent()
+  const edit = useEditables()
   if (!education) return null
   const entries = [...education.entries].sort((a, b) => a.order - b.order)
 
@@ -29,7 +31,7 @@ export function Education() {
         {entries.map((entry, index) => (
           <li key={entry.id}>
             <Reveal delay={index * STAGGER}>
-              <Card padding="lg" className="grid gap-6 sm:grid-cols-[auto_1fr] sm:gap-8 md:p-10">
+              <Card {...edit(`education.${entry.id}`)} padding="lg" className="grid gap-6 sm:grid-cols-[auto_1fr] sm:gap-8 md:p-10">
                 <span className="flex size-16 items-center justify-center rounded-3xl bg-linear-to-b from-moss to-forest text-ivory shadow-button">
                   <GraduationCap size={28} aria-hidden="true" />
                 </span>

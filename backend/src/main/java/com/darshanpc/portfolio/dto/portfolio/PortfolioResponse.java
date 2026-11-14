@@ -3,6 +3,7 @@ package com.darshanpc.portfolio.dto.portfolio;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The complete public portfolio as published. This exact structure is stored
@@ -29,7 +30,8 @@ public record PortfolioResponse(
         List<SocialLinkItem> socialLinks,
         Footer footer,
         Appearance appearance,
-        Seo seo) {
+        Seo seo,
+        Map<String, ElementStyle> styles) {
 
     @Schema(name = "Profile")
     public record Profile(
@@ -173,7 +175,24 @@ public record PortfolioResponse(
             String backgroundStyle,
             String headingFont,
             boolean heroSceneEnabled,
-            boolean motionEnabled) {
+            boolean motionEnabled,
+            String backgroundColor,
+            String textColor,
+            String bodyFont,
+            String cornerStyle) {
+    }
+
+    /**
+     * Formatting for one element, keyed in {@link PortfolioResponse#styles()} by
+     * the element's editor id. Null attributes keep the design default.
+     */
+    @Schema(name = "ElementStyle")
+    public record ElementStyle(
+            String color,
+            Double fontScale,
+            Integer fontWeight,
+            @Schema(allowableValues = {"start", "center", "end"}) String textAlign,
+            @Schema(allowableValues = {"sans", "serif"}) String fontFamily) {
     }
 
     public record Seo(String title, String description, String canonicalUrl, String ogImageUrl, boolean allowIndexing) {

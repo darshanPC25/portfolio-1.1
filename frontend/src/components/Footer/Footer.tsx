@@ -1,20 +1,26 @@
 import { Link } from 'react-router-dom'
 import { SocialLinks } from '@/components/UI/SocialLinks'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
+import { useEditables } from '@/editor/editable'
 
 export function Footer() {
   const { navigation, profile, socialLinks, footer } = usePortfolioContent()
+  const edit = useEditables()
 
   return (
-    <footer className="bg-pine text-mist">
+    <footer className="theme-fixed bg-pine text-mist">
       <div className="mx-auto w-full max-w-page px-5 pt-14 pb-8 sm:px-8">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
-            <a href="#home" className="font-serif text-4xl text-ivory italic">
+            <a href="#home" {...edit('profile.preferredName')} className="font-serif text-4xl text-ivory italic">
               {profile.preferredName}
             </a>
-            <p className="mt-3 text-sm text-sage">{profile.title}</p>
-            <p className="mt-1 text-sm text-sage/80">{footer.note}</p>
+            <p {...edit('profile.title')} className="mt-3 text-sm text-sage">
+              {profile.title}
+            </p>
+            <p {...edit('footer.note')} className="mt-1 text-sm text-sage/80">
+              {footer.note}
+            </p>
           </div>
 
           <nav aria-label="Footer">
@@ -28,6 +34,7 @@ export function Footer() {
                 <li key={item.id}>
                   <a
                     href={`#${item.id}`}
+                    {...edit(`section.${item.id}.navLabel`)}
                     className="inline-flex min-h-10 items-center text-sm text-mist hover:text-ivory"
                   >
                     {item.label}
@@ -42,7 +49,7 @@ export function Footer() {
 
         <div className="mt-12 border-t border-ivory/12 pt-6">
           <p className="text-center text-sm text-sage md:text-left">
-            {footer.copyright}
+            <span {...edit('footer.copyright')}>{footer.copyright}</span>
             <span aria-hidden="true"> · </span>
             <Link
               to={footer.loginHref}

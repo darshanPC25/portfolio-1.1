@@ -4,7 +4,10 @@ import axios, { isAxiosError } from 'axios'
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api/v1'
 
 /** Origin of the API server, used to resolve files the backend serves. */
-export const API_ORIGIN = new URL(API_BASE_URL, window.location.href).origin
+export const API_ORIGIN = new URL(
+  API_BASE_URL,
+  typeof window === 'undefined' ? 'http://localhost' : window.location.href,
+).origin
 
 /** The single HTTP client every service uses. */
 export const apiClient = axios.create({

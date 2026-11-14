@@ -57,7 +57,7 @@ export function WavePanel({ children, className }: { children: ReactNode; classN
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
 
   return (
-    <div ref={ref} className={cn('relative isolate overflow-hidden rounded-panel bg-pine shadow-lift', className)}>
+    <div ref={ref} className={cn('theme-fixed relative isolate overflow-hidden rounded-panel bg-pine shadow-lift', className)}>
       <svg
         aria-hidden="true"
         className="absolute inset-0 -z-10 size-full"

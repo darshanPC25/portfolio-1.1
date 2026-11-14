@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 
-function setMeta(attribute: 'name' | 'property', key: string, value: string | null) {
+export function setMeta(attribute: 'name' | 'property', key: string, value: string | null) {
   let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`)
   if (!value) {
     element?.remove()
@@ -40,6 +40,10 @@ export function SeoHead() {
     setMeta('property', 'og:title', seo.title)
     setMeta('property', 'og:description', seo.description)
     setMeta('property', 'og:image', seo.ogImageUrl)
+    setMeta('property', 'og:url', seo.canonicalUrl)
+    setMeta('name', 'twitter:title', seo.title)
+    setMeta('name', 'twitter:description', seo.description)
+    setMeta('name', 'twitter:image', seo.ogImageUrl)
     setCanonical(seo.canonicalUrl)
   }, [seo])
 

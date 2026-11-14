@@ -27,6 +27,14 @@ interface ConfigFormProps {
   children?: ReactNode
   /** Warn before leaving the page with unsaved edits. */
   guardNavigation?: boolean
+  /** Called with API-shaped values on every change (live preview). */
+  onValuesChange?: (values: FormValues) => void
+  /** Called when the form gains or loses unsaved edits. */
+  onDirtyChange?: (dirty: boolean) => void
+  /** One column for narrow panels. */
+  columns?: 1 | 2
+  /** Label of the button that discards edits (pages / panels). */
+  discardLabel?: string
 }
 
 /**
@@ -43,6 +51,10 @@ export function ConfigForm({
   allowPristineSubmit = false,
   children,
   guardNavigation = true,
+  onValuesChange,
+  onDirtyChange,
+  columns = 2,
+  discardLabel = 'Discard changes',
 }: ConfigFormProps) {
   const toast = useToast()
   const queryClient = useQueryClient()
@@ -56,6 +68,17 @@ export function ConfigForm({
     setError,
     formState: { isDirty, isSubmitting, errors },
   } = form
+
+  // Live preview: report every change in API shape.
+  useEffect(() => {
+    if (!onValuesChange) return
+    const subscription = form.watch((values) => onValuesChange(fromFormValues(fields, values as FormValues)))
+    return () => subscription.unsubscribe()
+  }, [form, fields, onValuesChange])
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
 
   // Warn before closing the tab with unsaved edits.
   useEffect(() => {
@@ -90,7 +113,7 @@ export function ConfigForm({
   return (
     <FormProvider {...form}>
       <form noValidate onSubmit={submit}>
-        <FieldGrid fields={fields} />
+        <FieldGrid fields={fields} columns={columns} />
         {children}
 
         <div
@@ -103,7 +126,7 @@ export function ConfigForm({
             {errors.root?.message ? (
               <span className="text-danger">{errors.root.message}</span>
             ) : isDirty ? (
-              <span className="inline-flex items-center gap-2 text-[#7a5a14]">
+              <span className="inline-flex items-center gap-2 text-[#7a5a14] dark:text-[#e8c873]">
                 <span className="size-2 rounded-full bg-[#c99a2e]" aria-hidden="true" />
                 Unsaved changes
               </span>
@@ -114,7 +137,7 @@ export function ConfigForm({
           <div className="flex gap-2">
             {(onCancel || isDirty) && (
               <StudioButton onClick={() => (onCancel ? onCancel() : reset(defaults))} disabled={isSubmitting}>
-                {onCancel ? 'Cancel' : 'Discard changes'}
+                {onCancel ? 'Cancel' : discardLabel}
               </StudioButton>
             )}
             <StudioButton type="submit" variant="primary" loading={isSubmitting} disabled={!canSubmit}>

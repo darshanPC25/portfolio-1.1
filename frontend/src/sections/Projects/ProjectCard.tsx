@@ -8,6 +8,7 @@ import type { Project } from '@/types/content'
 import { ProjectLinks } from './ProjectLinks'
 import { ProjectPreview } from './ProjectPreview'
 import { PROJECT_STATUS_LABEL } from './projectStatus'
+import { useEditables } from '@/editor/editable'
 
 interface ProjectCardProps {
   project: Project
@@ -28,8 +29,9 @@ function ProjectTags({ project }: { project: Project }) {
 
 /** Large editorial layout for the featured project. */
 export function FeaturedProjectCard({ project, onViewDetails }: ProjectCardProps) {
+  const edit = useEditables()
   return (
-    <article className="group relative grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
+    <article {...edit(`project.${project.id}`)} className="group relative grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
       <div className="order-2 lg:order-1">
         <Tag tone="green">{PROJECT_STATUS_LABEL[project.status]}</Tag>
         <h3 className="mt-4 text-3xl leading-tight tracking-tight text-balance text-ink sm:text-4xl">
@@ -54,7 +56,7 @@ export function FeaturedProjectCard({ project, onViewDetails }: ProjectCardProps
         <Blob tone="cream" round className="top-[8%] left-[-5%] size-[13%]" drift="normal" />
         <TiltCard max={4} radius="rounded-panel">
           <div className="surface-glass relative rounded-panel p-4 sm:p-6">
-            <ProjectPreview project={project} />
+            <ProjectPreview project={project} editId={`project.${project.id}.image`} />
           </div>
         </TiltCard>
       </div>
@@ -64,13 +66,15 @@ export function FeaturedProjectCard({ project, onViewDetails }: ProjectCardProps
 
 /** Compact card used in the project grid. */
 export function ProjectCard({ project, onViewDetails }: ProjectCardProps) {
+  const edit = useEditables()
   return (
     <TiltCard>
       <Card
+        {...edit(`project.${project.id}`)}
         padding="none"
         className="group flex h-full flex-col p-3 transition-shadow duration-500 ease-soft hover:shadow-lift"
       >
-        <ProjectPreview project={project} />
+        <ProjectPreview project={project} editId={`project.${project.id}.image`} />
         <div className="flex flex-1 flex-col px-3 pt-6 pb-3">
           <Tag tone="green" className="self-start">
             {PROJECT_STATUS_LABEL[project.status]}

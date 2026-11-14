@@ -1,4 +1,4 @@
-import { lazy, Suspense, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Blob } from '@/components/UI/Blob'
 import { prefersStaticVisuals, useDeviceTier } from '@/hooks/useDeviceTier'
 import { useInViewport } from '@/hooks/useInViewport'
@@ -10,6 +10,37 @@ import { useMotionDisabled } from '@/hooks/useMotionDisabled'
 
 // Three.js is the heaviest dependency, so it loads after first paint.
 const HeroScene = lazy(() => import('@/three/HeroScene'))
+
+/**
+ * True once the page has loaded and the browser is idle (or after `maxWait`
+ * ms at most). Starting the 3D scene then keeps its ~1 MB download and
+ * start-up work away from the first render, the hero photo and the intro
+ * animation; the CSS shapes are on screen in the meantime.
+ */
+function useAfterLoadIdle(maxWait = 3000): boolean {
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    let idleId: number | undefined
+    let timer: number | undefined
+    const start = () => {
+      if ('requestIdleCallback' in window) {
+        idleId = window.requestIdleCallback(() => setReady(true), {
+          timeout: maxWait,
+        })
+      } else {
+        timer = globalThis.setTimeout(() => setReady(true), 200) as unknown as number
+      }
+    }
+    if (document.readyState === 'complete') start()
+    else window.addEventListener('load', start, { once: true })
+    return () => {
+      window.removeEventListener('load', start)
+      if (idleId !== undefined) window.cancelIdleCallback(idleId)
+      if (timer !== undefined) globalThis.clearTimeout(timer)
+    }
+  }, [maxWait])
+  return ready
+}
 
 /**
  * CSS-only version of the scene. It paints immediately, stays as the
@@ -36,14 +67,20 @@ export function HeroBackdrop() {
   const { appearance } = usePortfolioContent()
   const [deviceCanRender3D] = useState(() => isWebGLAvailable() && !prefersStaticVisuals())
   const use3D = appearance.heroSceneEnabled && deviceCanRender3D
+  const idle = useAfterLoadIdle()
 
   return (
     <div ref={ref} aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
       <StaticBlobs hidden={use3D && sceneReady} />
-      {use3D && (
+      {use3D && idle && (
         <SceneBoundary fallback={null}>
           <Suspense fallback={null}>
-            <div className={cn('absolute inset-0 transition-opacity duration-700', sceneReady ? 'opacity-100' : 'opacity-0')}>
+            <div
+              className={cn(
+                'absolute inset-0 transition-opacity duration-700',
+                sceneReady ? 'opacity-100' : 'opacity-0',
+              )}
+            >
               <HeroScene animate={inView && !reduceMotion} tier={tier} onReady={() => setSceneReady(true)} />
             </div>
           </Suspense>

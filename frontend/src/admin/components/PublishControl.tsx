@@ -32,7 +32,7 @@ export function PublishControl() {
     <div className="flex items-center gap-3">
       <p className="hidden text-sm sm:block" aria-live="polite">
         {overview.data == null ? null : pending ? (
-          <span className="inline-flex items-center gap-2 text-[#7a5a14]">
+          <span className="inline-flex items-center gap-2 text-[#7a5a14] dark:text-[#e8c873]">
             <span className="size-2 rounded-full bg-[#c99a2e]" aria-hidden="true" />
             Unpublished changes
           </span>

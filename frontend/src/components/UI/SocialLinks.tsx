@@ -1,6 +1,7 @@
 import type { SocialLink } from '@/types/content'
 import { cn } from '@/utils/cn'
 import { SocialIcon } from './BrandIcons'
+import { useEditables } from '@/editor/editable'
 
 interface SocialLinksProps {
   links: SocialLink[]
@@ -10,13 +11,14 @@ interface SocialLinksProps {
 
 /** Icon links for the social profiles that have a URL. Renders nothing if none do. */
 export function SocialLinks({ links, tone = 'light', className }: SocialLinksProps) {
+  const edit = useEditables()
   const available = links.filter((link): link is SocialLink & { url: string } => Boolean(link.url))
   if (available.length === 0) return null
 
   return (
     <ul className={cn('flex flex-wrap items-center gap-2.5', className)}>
       {available.map((link) => (
-        <li key={link.id}>
+        <li key={link.id} {...edit(`social.${link.id}`)}>
           <a
             href={link.url}
             aria-label={link.label}

@@ -158,6 +158,10 @@ public class SiteAdminService {
         a.setHeadingFont(dto.headingFont());
         a.setHeroSceneEnabled(dto.heroSceneEnabled());
         a.setMotionEnabled(dto.motionEnabled());
+        a.setBackgroundColor(dto.backgroundColor() == null ? null : dto.backgroundColor().toLowerCase());
+        a.setTextColor(dto.textColor() == null ? null : dto.textColor().toLowerCase());
+        a.setBodyFont(dto.bodyFont());
+        a.setCornerStyle(dto.cornerStyle());
         draftChanges.markChanged();
         return toDto(a);
     }
@@ -238,7 +242,8 @@ public class SiteAdminService {
 
     private static AppearanceDto toDto(PortfolioAppearance a) {
         return new AppearanceDto(a.getAccentColor(), a.getBackgroundStyle(), a.getHeadingFont(),
-                a.isHeroSceneEnabled(), a.isMotionEnabled(), a.getUpdatedAt());
+                a.isHeroSceneEnabled(), a.isMotionEnabled(), a.getUpdatedAt(),
+                a.getBackgroundColor(), a.getTextColor(), a.getBodyFont(), a.getCornerStyle());
     }
 
     private static SeoResponse toResponse(SeoSettings s) {

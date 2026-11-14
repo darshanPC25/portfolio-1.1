@@ -4,9 +4,12 @@ import type { Project } from '@/types/content'
 import { cn } from '@/utils/cn'
 import { EASE_SOFT, VIEWPORT_ONCE } from '@/utils/motion'
 import { useMotionDisabled } from '@/hooks/useMotionDisabled'
+import { useEditables } from '@/editor/editable'
 
 interface ProjectPreviewProps {
   project: Project
+  /** Editor id of the image (cards only; not the details dialog). */
+  editId?: string
   /** Load immediately instead of lazily (for images near the top of a dialog). */
   eager?: boolean
   className?: string
@@ -17,11 +20,15 @@ interface ProjectPreviewProps {
  * The screen opens from a soft inset when it first scrolls into view, the
  * image fades in when loaded, and it zooms gently on card hover.
  */
-export function ProjectPreview({ project, eager = false, className }: ProjectPreviewProps) {
+export function ProjectPreview({ project, editId, eager = false, className }: ProjectPreviewProps) {
+  const edit = useEditables()
   const reduceMotion = useMotionDisabled()
 
   return (
-    <div className={cn('rounded-[1.4rem] border border-white/80 bg-sand/60 p-2 shadow-soft', className)}>
+    <div
+      {...(editId ? edit(editId) : {})}
+      className={cn('rounded-[1.4rem] border border-white/80 bg-sand/60 p-2 shadow-soft', className)}
+    >
       <motion.div
         className="aspect-[16/10] overflow-hidden rounded-2xl bg-cream"
         initial={reduceMotion ? false : { clipPath: 'inset(10% 10% 10% 10% round 16px)' }}

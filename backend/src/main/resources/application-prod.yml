@@ -1,0 +1,37 @@
+# Production. Activate with SPRING_PROFILES_ACTIVE=prod.
+# Every value without a default must be supplied as an environment variable;
+# the application refuses to start when one is missing.
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+server:
+  # Behind the bundled nginx (or another trusted reverse proxy) the client IP,
+  # used for rate limiting, comes from X-Forwarded-For.
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:framework}
+  servlet:
+    session:
+      cookie:
+        # The site must be served over HTTPS in production.
+        secure: ${SESSION_COOKIE_SECURE:true}
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+portfolio:
+  cors:
+    # The public site origin(s), e.g. https://darshan.dev. No default on purpose.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  storage:
+    directory: ${UPLOAD_DIRECTORY:/var/lib/portfolio/uploads}
+
+logging:
+  level:
+    root: INFO
+    com.darshanpc.portfolio: INFO

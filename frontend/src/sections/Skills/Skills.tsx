@@ -8,6 +8,7 @@ import { Tag } from '@/components/UI/Tag'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import type { SkillIcon } from '@/types/content'
 import { STAGGER } from '@/utils/motion'
+import { useEditables } from '@/editor/editable'
 
 const ICONS: Record<SkillIcon, LucideIcon> = {
   code: Braces,
@@ -19,6 +20,7 @@ const ICONS: Record<SkillIcon, LucideIcon> = {
 
 export function Skills() {
   const { skills } = usePortfolioContent()
+  const edit = useEditables()
   if (!skills) return null
   const groups = [...skills.groups].sort((a, b) => a.order - b.order)
 
@@ -36,7 +38,7 @@ export function Skills() {
           return (
             <li key={group.id}>
               <Reveal delay={index * STAGGER} className="h-full">
-                <Card interactive padding="lg" className="flex h-full flex-col">
+                <Card {...edit(`skillgroup.${group.id}`)} interactive padding="lg" className="flex h-full flex-col">
                   <span className="flex size-12 items-center justify-center rounded-2xl bg-linear-to-b from-mist to-sage text-forest shadow-soft">
                     <Icon size={22} aria-hidden="true" />
                   </span>
@@ -44,7 +46,7 @@ export function Skills() {
                   <p className="mt-1 text-sm text-muted">{group.description}</p>
                   <ul className="mt-6 flex flex-wrap gap-2">
                     {group.skills.map((skill) => (
-                      <li key={skill.id}>
+                      <li key={skill.id} {...edit(`skill.${skill.id}`)}>
                         <Tag tone="green" className="px-3 py-1.5 text-sm">
                           {skill.name}
                         </Tag>

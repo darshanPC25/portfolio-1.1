@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { ThemeToggle } from '@/components/UI/ThemeToggle'
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Eye, EyeOff, LockKeyhole } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { z } from 'zod'
+import { z } from '@/utils/zod'
 import { Blob } from '@/components/UI/Blob'
 import { getApiProblem } from '@/services/apiClient'
 import { cn } from '@/utils/cn'
@@ -94,6 +95,7 @@ export default function LoginPage() {
 
   return (
     <main className="bg-hero relative flex min-h-svh items-center justify-center overflow-hidden px-4 py-12">
+      <ThemeToggle className="absolute top-4 right-4" />
       <Blob tone="sage" parallax={0} className="top-[8%] left-[-5rem] size-64 md:size-80" />
       <Blob tone="olive" parallax={0} drift="normal" className="right-[-4rem] bottom-[10%] size-48 md:size-64" />
       <Blob tone="cream" round parallax={0} drift="normal" className="top-[18%] right-[14%] size-12" />
@@ -114,7 +116,7 @@ export default function LoginPage() {
             </p>
           )}
           {failure && (
-            <p id={ids.error} role="alert" className="mb-5 rounded-2xl bg-[#fbeeea] px-4 py-3 text-sm text-danger">
+            <p id={ids.error} role="alert" className="mb-5 rounded-2xl bg-[#fbeeea] dark:bg-[#3a1f19] px-4 py-3 text-sm text-danger">
               {failure}
             </p>
           )}

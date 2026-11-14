@@ -1,6 +1,6 @@
 # Till-Now Context — Darshan Portfolio + Visual CMS
 
-Last updated: 2026-11-14 · Status: **Batches 1 and 2 approved (commits "Batch1 Completed", "Batch2 Completed"). Batches 3 and 4 approved (not yet committed). Waiting for Batch 5.**
+Last updated: 2026-11-14 · Status: **Batches 1 and 2 approved (commits "Batch1 Completed", "Batch2 Completed"). Batches 3 and 4 approved (staged, not committed). Batch 5 approved. Batch 6 (final integration, testing, optimisation) delivered, awaiting approval.**
 
 This file summarises everything agreed and built so far, so work can resume in a new
 session without the original conversation.
@@ -442,6 +442,131 @@ Errors are RFC 9457 problem JSON; validation errors include an `errors` field ma
 
 ---
 
+## 5e. Batch 5 — Visual website editor (approved)
+
+### How it works
+- **Edit Website** (dashboard button + top of the sidebar) opens `/admin/editor`, full screen.
+- The canvas is a same-origin frame (`/admin/editor/canvas`) rendering `PortfolioPage` — the
+  exact components of the public site — so fixed navigation, viewport sizing and breakpoints
+  behave as live. Device widths: desktop / tablet (820 px) / phone (390 px).
+- Content source: `GET /api/v1/admin/preview` = the draft assembled in the public snapshot
+  shape (version 0). Public site and editor share one content model (`PortfolioContent`).
+- Editable elements are tagged by public components with `{...edit(id)}`
+  (`src/editor/editable.ts`): public site → only published formatting; editor → `data-edit-id`
+  + focusable. No wrapper elements, so layouts are identical.
+- Overlay (`EditorOverlay`): hover = dashed outline + label badge ("Hero · Greeting");
+  click/Enter = select (solid outline). Blocks links leaving the page and form submits.
+- Editor ↔ canvas talk through `postMessage` (origin + source checked). The editor sends the
+  draft with unsaved edits applied, so the canvas previews changes live while typing.
+- Inspector (right panel, bottom sheet on phones): element name, fields, formatting
+  (colour, size via CSS zoom 75–150 %, weight, alignment, font), image replacement, link
+  editor, order (move earlier/later), visibility/publication, "Manage …" dialogs that reuse the
+  studio pages for adding/deleting/showing hidden items. Save / Cancel.
+- Saves are read-modify-write through the existing validated admin APIs (fresh GET, change
+  only edited fields, PUT) → no other content is lost.
+- Workflow: open editor → select → edit (live preview) → Save (draft, toast, "Draft saved
+  hh:mm", last-modified time) → Preview mode / full preview page `/admin/preview` →
+  Publish → confirm (optional note). Unsaved-changes prompt when switching element or leaving;
+  browser warning on tab close.
+
+### Editable targets (`src/admin/editor/targets.ts`)
+Hero greeting, role, tagline, both buttons (text + link), resume label, focus label, focus
+areas, availability, location, profile photo (replace + alt); section eyebrow/heading/intro/
+menu label + section visibility (all 7 sections); About paragraphs, facts, approach heading and
+steps; skill categories (title, icon, description, visibility, order, add skill) and skills
+(name, category, visibility, order); projects (all fields, technologies, GitHub/demo URLs,
+status, featured, publish/unpublish, order, screenshot); journey and education entries;
+social links; contact form heading and button; GitHub empty message; footer name, title,
+note, copyright. Site theme: accent, background colour + tone, text colour, heading and body
+font, corner radius, 3D scene, animations.
+
+### Backend
+- `V4__visual_editor.sql`: appearance `background_color`, `text_color`, `body_font`,
+  `corner_style`; table `element_style` (per-element formatting with DB check constraints).
+- `admin/editor`: `GET /admin/preview`, `GET /admin/element-styles`,
+  `PUT/DELETE /admin/element-styles/{key}` (validated; empty body resets; max 500 rows).
+- Snapshot schema version 3: `styles` map + new appearance fields.
+
+### Batch 5 tests
+- `./mvnw test`: **45 pass** (new `EditorApiTest`: admin-only access, draft preview vs public,
+  style validation/reset/publish, appearance colours/fonts/corners).
+- Browser, against the real backend: Edit Website entry points; 87 editable elements tagged;
+  real mouse hover outline + badge and click selection; live preview while typing; Cancel
+  restores; Save → draft (public unchanged); formatting live + saved; reset formatting;
+  unsaved-changes prompt (fixed a dialog race, 6/6 rapid attempts); link editor rejects
+  `javascript:`; other fields preserved on save; temporary project via Manage dialog (fixed
+  nested-dialog closing) → edit tags/URL/status live → reorder → screenshot upload → unpublish;
+  skill rename + category move; theme live (studio unaffected); Preview mode; tablet/phone
+  widths reflow; full preview page; Publish with confirmation; public page has no editor
+  markup; phone layout (bottom sheet). All test edits reverted.
+- Incident during testing: Darshan published v6 (with his new photo) while my test edits were in
+  the shared draft, so they went live briefly. Restored the draft and published **v7** (= his
+  photo, original content); verified by diffing live vs draft.
+- Frontend type-check and production build pass; public bundle +<1 kB, editor in the studio bundle.
+
+---
+
+## 5f. Batch 6 — Final integration, testing and optimisation (delivered)
+
+### Backend
+- Public endpoints: weak ETag `W/"v<version>"` + `Cache-Control: no-cache, public` → 304 on
+  revalidation; gzip for JSON (`server.compression`; a strong ETag disabled Tomcat gzip).
+- `application.yml`: HikariCP pool (`DB_POOL_MAX_SIZE`/`DB_POOL_MIN_IDLE`), Hibernate
+  `default_batch_fetch_size: 32` (no N+1), JDBC batching. New `application-prod.yml`.
+- `V5__performance_indexes.sql`: indexes on the two unindexed foreign keys.
+- `Referrer-Policy` header; uploaded file names always end with the detected extension.
+- 45 new tests → **90 total**: `validation/ValidationRulesTest`, `security/PasswordAndHashingTest`,
+  `service/asset/AssetStorageServiceTest`, `service/PublishedPortfolioServiceTest`,
+  `audit/SecurityAuditTest` (all ~50 studio endpoints 401 for anonymous callers, CORS,
+  SQL-like input, no internals, headers, no password hashes), `audit/PerformanceAndIntegrityTest`
+  (304 flow, same query count with 8 more projects/categories, FK cascades, every FK indexed).
+- `Dockerfile` (Maven build with cached ~/.m2, non-root JRE 21 image, healthcheck).
+
+### Frontend
+- Vitest added (`npm test`, 22 tests in `src/__tests__/`).
+- `seo-files.ts`: build writes `robots.txt` (Disallow /admin) and `sitemap.xml` (needs
+  `VITE_SITE_URL`); preloads `/portfolio` JSON. Static OG/Twitter tags + `<noscript>` in index.html.
+- `NoIndex` wrapper on studio routes; studio pages get per-page titles.
+- 3D scene loads after window load + idle (`useAfterLoadIdle` in HeroBackdrop).
+- `src/utils/zod.ts` (jitless, CSP-safe); import `z` from there.
+- Logo aria-label now contains its visible text.
+- `Dockerfile` (node:25-alpine → nginx) + `nginx.conf` (CSP, gzip, immutable assets, SPA
+  fallback, /api proxy). package-lock regenerated in Linux so `npm ci` works in Docker.
+
+### Root
+- `docker-compose.prod.yml`, `.env.production.example` (`.env.production` gitignored),
+  `DEPLOYMENT.md`; README test results + limitations. `.claude/launch.json` has a
+  `frontend-preview` entry on port 4173.
+
+### Batch 6 verification
+- Production stack built and run locally (port 8090, throwaway volumes, removed afterwards):
+  Flyway V1–V5, admin bootstrap, seed publish; footer Login → sign in → editor → hero greeting
+  edited (draft only, public unchanged) → profile photo replaced through the real upload input
+  (asset 404 for visitors until published) → Publish v2 → public site updated with no rebuild;
+  anonymous studio API 401/403; content + upload survive a full restart.
+- Dev DB checks: contact form message stored with hashed IP (test row deleted); login rejects
+  wrong credentials; protected route → login with `next`; phone width no overflow; all images
+  have alt text; anchors resolve.
+- Lighthouse (production stack): A11y 100, Best Practices 100, SEO 100; Performance desktop
+  81–90, mobile 50–54.
+- Not re-verified in the browser this batch against the real dev database: signed-in studio flows
+  (Claude cannot read ADMIN_PASSWORD); they were covered on the production trial stack instead.
+
+### Dark mode (requested during Batch 6, public site + Studio)
+- `hooks/useTheme.ts` (store + `forDarkTheme`), `components/UI/ThemeToggle.tsx`,
+  `public/theme-init.js` (no-flash, CSP-safe), dark tokens + `.theme-fixed` + `dark:` variant in
+  `styles/index.css`.
+- Toggles: Navbar, LoginPage, AdminLayout header, VisualEditor header. Default light; per visitor.
+- Footer and Journey panel keep the light tokens (`theme-fixed`). Status colours in the Studio have
+  `dark:` variants. Appearance accent + element colours lightened in dark; custom background/text
+  colours apply to light only. 3D lighting dimmed (×0.4) in dark.
+- Verified: measured text contrast (WCAG AA) on the whole public page in both themes and on all
+  14 Studio pages in dark — all pass except a light-theme "Graduating 2026" (olive, 3.9:1) that
+  predates this change; the toggle syncs the editor canvas both ways; theme persists over reload.
+  24 frontend tests pass.
+
+---
+
 ## 6. Placeholders and assumptions awaiting Darshan's input
 
 | Item | Current state | Needed |
@@ -466,6 +591,13 @@ Errors are RFC 9457 problem JSON; validation errors include an `errors` field ma
 ## 7. Known issues
 
 - No email notification for new contact messages (inbox only).
+- One shared draft: if two people edit at once, a Publish includes everyone's saved edits.
+- Text is plain (no bold/italic inside a sentence); formatting applies to whole elements.
+- Hidden items are not on the canvas; show them via the editor's "Manage …" dialogs.
+- Formatting is per element id: elements shown twice (name in menu and footer, location in
+  hero and contact) share one style.
+- The design has no section images besides the hero photo and project screenshots; the
+  sharing image is edited on the SEO page.
 - Replaced uploads are kept on disk (an older publication may still use them); there is no
   clean-up of unused files yet.
 - Changing the password does not sign out other active sessions.
@@ -479,11 +611,13 @@ Errors are RFC 9457 problem JSON; validation errors include an `errors` field ma
   motion components added ~24 kB). The 3D scene is a separate 267 kB chunk loaded after
   first paint; the contact form is a separate 38 kB chunk.
 - three.js logs a harmless `THREE.Clock` deprecation warning in the console.
+- Mobile Lighthouse performance ~50 (3D scene + animation libraries on a simulated slow phone).
+- The portfolio JSON preload also runs on /admin pages (unused there; harmless).
 
 ---
 
 ## 8. Not started
 
-- Visual click-to-edit editor (next batch per the spec)
+- (none of the master specification remains unbuilt; future batches as Darshan sends them)
 
-**Next step:** Darshan sends Batch 5.
+**Next step:** Darshan sends the next batch.

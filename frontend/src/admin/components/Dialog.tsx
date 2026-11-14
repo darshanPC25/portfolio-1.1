@@ -18,19 +18,34 @@ const widths = { sm: 'w-[min(100vw-1.5rem,28rem)]', md: 'w-[min(100vw-1.5rem,40r
 export function Dialog({ open, onClose, title, description, size = 'md', children }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
+  // The native "close" event fires asynchronously. When we closed the dialog
+  // ourselves, that late event must not call onClose (it could cancel a
+  // request made in the meantime, e.g. the next "discard changes?" prompt).
+  const closingProgrammatically = useRef(false)
 
   useEffect(() => {
     const dialog = ref.current
     if (!dialog) return
     if (open && !dialog.open) dialog.showModal()
-    if (!open && dialog.open) dialog.close()
+    if (!open && dialog.open) {
+      closingProgrammatically.current = true
+      dialog.close()
+    }
   }, [open])
 
   return (
     <dialog
       ref={ref}
       aria-labelledby={titleId}
-      onClose={onClose}
+      onClose={(event) => {
+        // React propagates a nested dialog's close event to its parents; only react to our own.
+        if (event.target !== ref.current) return
+        if (closingProgrammatically.current) {
+          closingProgrammatically.current = false
+          return
+        }
+        onClose()
+      }}
       onClick={(event) => event.target === ref.current && onClose()}
       className={cn('modal fixed inset-0 m-auto overflow-visible bg-transparent p-0 text-ink', widths[size])}
     >

@@ -2,6 +2,7 @@ package com.darshanpc.portfolio.admin.site;
 
 import com.darshanpc.portfolio.admin.support.AdminSupport.AssetResponse;
 import com.darshanpc.portfolio.entity.enums.BackgroundStyle;
+import com.darshanpc.portfolio.entity.enums.CornerStyle;
 import com.darshanpc.portfolio.entity.enums.HeadingFont;
 import com.darshanpc.portfolio.entity.enums.SectionKey;
 import com.darshanpc.portfolio.util.Texts;
@@ -144,7 +145,22 @@ public final class SiteAdminDtos {
             @NotNull HeadingFont headingFont,
             boolean heroSceneEnabled,
             boolean motionEnabled,
-            Instant updatedAt) {
+            Instant updatedAt,
+            /* Custom page background; overrides backgroundStyle. Null = use the preset. */
+            @Pattern(regexp = "^#[0-9a-fA-F]{6}$", message = "Use a colour like #f8f5ec.") String backgroundColor,
+            /* Custom main text colour. Null = design default. */
+            @Pattern(regexp = "^#[0-9a-fA-F]{6}$", message = "Use a colour like #222a1b.") String textColor,
+            /* Body text typeface; defaults to SANS when omitted. */
+            HeadingFont bodyFont,
+            /* Corner rounding; defaults to SOFT when omitted. */
+            CornerStyle cornerStyle) {
+
+        public AppearanceDto {
+            backgroundColor = Texts.blankToNull(backgroundColor);
+            textColor = Texts.blankToNull(textColor);
+            bodyFont = bodyFont == null ? HeadingFont.SANS : bodyFont;
+            cornerStyle = cornerStyle == null ? CornerStyle.SOFT : cornerStyle;
+        }
     }
 
     // ----------------------------------------------------------------- SEO

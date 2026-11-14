@@ -6,14 +6,14 @@ import type { FieldDef } from '../components/form/fieldTypes'
 import { SectionCard } from '../components/SectionCard'
 import { PageHeader, StatusPill } from '../components/ui'
 
-const PLATFORMS = [
+export const PLATFORMS = [
   { value: 'GITHUB', label: 'GitHub' },
   { value: 'LINKEDIN', label: 'LinkedIn' },
   { value: 'EMAIL', label: 'Email' },
   { value: 'WEBSITE', label: 'Website' },
 ]
 
-const FIELDS: FieldDef[] = [
+export const SOCIAL_FIELDS: FieldDef[] = [
   { name: 'platform', label: 'Platform', type: 'select', required: true, options: PLATFORMS },
   { name: 'label', label: 'Label', type: 'text', required: true, max: 60, hint: 'Read by screen readers.' },
   {
@@ -38,7 +38,7 @@ export function SocialLinksPage() {
           resource="social-links"
           noun="link"
           title="Links"
-          fields={FIELDS}
+          fields={SOCIAL_FIELDS}
           blank={BLANK}
           list={adminApi.socialLinks}
           create={adminApi.createSocialLink}

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@/utils/zod'
 import { apiClient } from './apiClient'
 
 /** Same limits as the backend's ContactRequest validation. */

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Clock, FolderKanban, Layers, Mail, Rocket, Wrench, type LucideIcon } from 'lucide-react'
+import { Clock, FolderKanban, Layers, Mail, MousePointerClick, Rocket, Wrench, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { adminApi } from '../api/adminApi'
@@ -50,6 +50,15 @@ export function OverviewPage() {
       <PageHeader
         title="Overview"
         description="Everything here is counted live from the database. Edits are saved to a draft; visitors see them after you publish."
+        actions={
+          <Link
+            to="/admin/editor"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-linear-to-b from-moss to-forest px-5 font-medium text-ivory shadow-button hover:from-forest hover:to-pine"
+          >
+            <MousePointerClick size={18} aria-hidden="true" />
+            Edit Website
+          </Link>
+        }
       />
 
       {overview.isPending ? (

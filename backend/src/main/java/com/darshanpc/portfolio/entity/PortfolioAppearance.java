@@ -1,6 +1,7 @@
 package com.darshanpc.portfolio.entity;
 
 import com.darshanpc.portfolio.entity.enums.BackgroundStyle;
+import com.darshanpc.portfolio.entity.enums.CornerStyle;
 import com.darshanpc.portfolio.entity.enums.HeadingFont;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,6 +31,23 @@ public class PortfolioAppearance extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "heading_font", nullable = false, length = 20)
     private HeadingFont headingFont = HeadingFont.SANS;
+
+    /** Custom page background (hex); overrides {@link #backgroundStyle} when set. */
+    @Column(name = "background_color", length = 7)
+    private String backgroundColor;
+
+    /** Custom main text colour (hex); the design's ink colour when null. */
+    @Column(name = "text_color", length = 7)
+    private String textColor;
+
+    /** Typeface for body text (same choices as headings). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "body_font", nullable = false, length = 20)
+    private HeadingFont bodyFont = HeadingFont.SANS;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "corner_style", nullable = false, length = 20)
+    private CornerStyle cornerStyle = CornerStyle.SOFT;
 
     /** Show the WebGL hero scene (otherwise the static CSS shapes are used). */
     @Column(name = "hero_scene_enabled", nullable = false)

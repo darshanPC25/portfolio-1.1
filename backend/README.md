@@ -44,6 +44,21 @@ seeds the initial content, and the seed is published once.
 ```
 
 Integration tests start a throwaway PostgreSQL 17 container, so Docker must be running.
+90 tests: unit tests (validation rules, password policy and BCrypt, IP hashing, upload
+type sniffing and file names, snapshot cache) and integration tests (public API, contact,
+authentication, every studio CRUD endpoint, the visual editor, and the Batch 6 audits in
+`audit/`: every studio endpoint refuses anonymous callers, CORS, SQL-like input, no
+internals in errors, security headers, HTTP caching, constant query count, foreign keys).
+
+## Production
+
+Run with `SPRING_PROFILES_ACTIVE=prod` (`application-prod.yml`): every connection setting must
+come from the environment, Swagger is off, the session cookie is `Secure`, and the client IP is
+taken from `X-Forwarded-For`. `Dockerfile` builds a non-root image. See
+[../DEPLOYMENT.md](../DEPLOYMENT.md).
+
+Public responses carry the publication version as a weak ETag with `Cache-Control: no-cache`,
+so browsers revalidate cheaply (304) and see a publish on the next load. JSON is gzipped.
 
 ## Configuration
 
@@ -63,6 +78,7 @@ gitignored `backend/.env`, which Spring Boot reads automatically.
 | `SESSION_COOKIE_SECURE`, `ADMIN_SESSION_TIMEOUT` | Session cookie over HTTPS only; idle timeout (default 2h) |
 | `ADMIN_LOGIN_RATE_LIMIT_MAX`, `ADMIN_LOGIN_RATE_LIMIT_WINDOW` | Sign-in attempts per IP per window (default 10 per 15m) |
 | `UPLOAD_DIRECTORY` | Where uploaded files are stored (default `./data/uploads`) |
+| `DB_POOL_MAX_SIZE`, `DB_POOL_MIN_IDLE` | HikariCP pool (default 10 / 2) |
 
 ## Portfolio Studio (admin) access
 
@@ -103,6 +119,7 @@ gitignored `backend/.env`, which Spring Boot reads automatically.
 | Experience, education, social links | `GET/POST {experience,education,social-links}`, `PUT/DELETE …/{id}`, `PUT …/order` |
 | Appearance, SEO | `GET/PUT appearance`, `GET/PUT seo`, `POST/DELETE seo/og-image` |
 | Messages | `GET messages?status=&page=`, `GET/PATCH/DELETE messages/{id}` |
+| Visual editor | `GET preview` (the draft in the public shape), `GET element-styles`, `PUT/DELETE element-styles/{key}` |
 
 All edits change the **draft**. `POST publications` makes the draft live.
 

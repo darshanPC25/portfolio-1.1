@@ -170,7 +170,20 @@ public class PortfolioSnapshotMapper {
                 appearance.getBackgroundStyle().publicValue(),
                 appearance.getHeadingFont().publicValue(),
                 appearance.isHeroSceneEnabled(),
-                appearance.isMotionEnabled());
+                appearance.isMotionEnabled(),
+                appearance.getBackgroundColor(),
+                appearance.getTextColor(),
+                appearance.getBodyFont().publicValue(),
+                appearance.getCornerStyle().publicValue());
+    }
+
+    public PortfolioResponse.ElementStyle style(com.darshanpc.portfolio.entity.ElementStyle style) {
+        return new PortfolioResponse.ElementStyle(
+                style.getColor(),
+                style.getFontScale() == null ? null : style.getFontScale().doubleValue(),
+                style.getFontWeight(),
+                style.getTextAlign(),
+                style.getFontFamily());
     }
 
     public PortfolioResponse.Seo seo(SeoSettings seo) {

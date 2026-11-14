@@ -8,6 +8,7 @@ import { SocialLinks } from '@/components/UI/SocialLinks'
 import { TextReveal } from '@/components/UI/TextReveal'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import { STAGGER } from '@/utils/motion'
+import { useEditables } from '@/editor/editable'
 
 // The form brings its validation libraries with it, so it loads separately
 // from the first paint of the page.
@@ -15,6 +16,7 @@ const ContactForm = lazy(() => import('./ContactForm').then((module) => ({ defau
 
 export function Contact() {
   const { contact, profile, socialLinks } = usePortfolioContent()
+  const edit = useEditables()
   if (!contact) return null
 
   return (
@@ -31,25 +33,30 @@ export function Contact() {
     >
       <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <Reveal className="flex flex-col items-center gap-5 text-center lg:items-start lg:text-left">
-          <p className="font-serif text-lg text-muted italic">
+          <p {...edit('section.contact.eyebrow')} className="font-serif text-lg text-muted italic">
             <span aria-hidden="true">/ </span>
             {contact.eyebrow}
             <span aria-hidden="true"> /</span>
           </p>
           <h2
             id="contact-heading"
+            {...edit('section.contact.heading')}
             className="font-heading text-5xl leading-[0.98] font-medium tracking-[-0.03em] text-balance text-olive sm:text-6xl lg:text-7xl"
           >
             <TextReveal text={contact.heading} delay={0.1} />
           </h2>
-          {contact.intro && <p className="max-w-[44ch] text-lg text-pretty text-muted">{contact.intro}</p>}
+          {contact.intro && (
+            <p {...edit('section.contact.intro')} className="max-w-[44ch] text-lg text-pretty text-muted">
+              {contact.intro}
+            </p>
+          )}
 
           <AvailabilityBadge
             available={profile.availability.available}
             label={profile.availability.label}
             className="mt-2"
           />
-          <p className="flex items-center gap-2 text-sm text-moss">
+          <p {...edit('profile.location')} className="flex items-center gap-2 text-sm text-moss">
             <MapPin size={15} aria-hidden="true" />
             Based in {profile.location}
           </p>

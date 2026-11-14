@@ -10,6 +10,7 @@ import { useGitHubActivity } from '@/hooks/useGitHubActivity'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import { formatMonthYear } from '@/utils/format'
 import { STAGGER } from '@/utils/motion'
+import { useEditables } from '@/editor/editable'
 
 function StatusCard({ message }: { message: string }) {
   return (
@@ -34,6 +35,7 @@ function LoadingGrid() {
 
 export function GitHub() {
   const { github } = usePortfolioContent()
+  const edit = useEditables()
   const { data, isPending, isError } = useGitHubActivity(github?.username ?? null)
   if (!github) return null
 
@@ -41,7 +43,11 @@ export function GitHub() {
     <Section id="github" background="bg-ivory">
       <SectionHeading id="github" eyebrow={github.eyebrow} heading={github.heading} intro={github.intro} />
 
-      {!github.username && github.emptyMessage && <StatusCard message={github.emptyMessage} />}
+      {!github.username && github.emptyMessage && (
+        <div {...edit('github.emptyMessage')}>
+          <StatusCard message={github.emptyMessage} />
+        </div>
+      )}
 
       {github.username && isPending && (
         <div role="status">

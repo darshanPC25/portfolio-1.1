@@ -7,10 +7,12 @@ import { useHeroIntro } from '@/hooks/useHeroIntro'
 import { useMotionDisabled } from '@/hooks/useMotionDisabled'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import { HeroBackdrop } from './HeroBackdrop'
+import { useEditables } from '@/editor/editable'
 
 export function Hero() {
   const { hero, profile, education } = usePortfolioContent()
   const sectionRef = useRef<HTMLElement>(null)
+  const edit = useEditables()
   useHeroIntro(sectionRef, !useMotionDisabled())
 
   const graduation = education?.entries[0]?.period
@@ -29,10 +31,10 @@ export function Hero() {
         className="mx-auto flex min-h-svh w-full max-w-page flex-col px-5 pt-28 pb-10 sm:px-8 sm:pt-32"
       >
         <h1 id="home-heading" className="text-center">
-          <span className="block font-heading text-[clamp(2.6rem,10.5vw,8.25rem)] leading-[0.95] font-medium tracking-[-0.035em] text-olive">
+          <span {...edit('hero.greeting')} className="block font-heading text-[clamp(2.6rem,10.5vw,8.25rem)] leading-[0.95] font-medium tracking-[-0.035em] text-olive">
             <SplitWords text={hero.greeting} />
           </span>
-          <span className="-mt-[0.06em] block font-serif text-[clamp(2.9rem,11.5vw,9.25rem)] leading-[0.92] tracking-[-0.02em] text-ink italic">
+          <span {...edit('hero.role')} className="-mt-[0.06em] block font-serif text-[clamp(2.9rem,11.5vw,9.25rem)] leading-[0.92] tracking-[-0.02em] text-ink italic">
             <SplitWords text={hero.role} />
           </span>
         </h1>
@@ -41,6 +43,7 @@ export function Hero() {
           {/* Portrait */}
           <figure
             data-hero-portrait
+            {...edit('profile.photo')}
             className="relative z-10 mx-auto w-[min(68vw,19rem)] lg:order-2 lg:w-[21rem] xl:w-[23rem]"
           >
             <div
@@ -62,11 +65,11 @@ export function Hero() {
 
           {/* Status */}
           <div className="flex flex-col items-center gap-3 lg:order-1 lg:items-start">
-            <div data-hero-reveal>
+            <div data-hero-reveal {...edit('profile.availability')}>
               <AvailabilityBadge available={profile.availability.available} label={profile.availability.label} />
             </div>
             <ul data-hero-reveal className="flex flex-wrap justify-center gap-x-5 gap-y-1 text-sm text-moss lg:flex-col lg:pl-3">
-              <li className="flex items-center gap-2">
+              <li {...edit('profile.location')} className="flex items-center gap-2">
                 <MapPin size={15} aria-hidden="true" />
                 Based in {profile.location}
               </li>
@@ -81,20 +84,21 @@ export function Hero() {
 
           {/* Pitch and actions */}
           <div className="flex flex-col items-center gap-6 text-center lg:order-3 lg:items-start lg:text-left">
-            <p data-hero-reveal className="max-w-[30ch] text-lg text-pretty text-forest sm:text-xl">
+            <p data-hero-reveal {...edit('hero.tagline')} className="max-w-[30ch] text-lg text-pretty text-forest sm:text-xl">
               {hero.tagline}
             </p>
             <div data-hero-reveal className="flex flex-wrap justify-center gap-3 lg:justify-start">
-              <Button href={hero.primaryCta.href} size="lg" icon={<ArrowRight size={18} />}>
+              <Button {...edit('hero.primaryCta')} href={hero.primaryCta.href} size="lg" icon={<ArrowRight size={18} />}>
                 {hero.primaryCta.label}
               </Button>
-              <Button href={hero.secondaryCta.href} size="lg" variant="secondary" icon={<ArrowUpRight size={18} />}>
+              <Button {...edit('hero.secondaryCta')} href={hero.secondaryCta.href} size="lg" variant="secondary" icon={<ArrowUpRight size={18} />}>
                 {hero.secondaryCta.label}
               </Button>
             </div>
             {profile.resumeUrl && (
               <a
                 data-hero-reveal
+                {...edit('hero.resumeLabel')}
                 href={profile.resumeUrl.includes('/api/v1/assets/') ? `${profile.resumeUrl}?download=true` : profile.resumeUrl}
                 download
                 className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-forest underline decoration-sage decoration-2 underline-offset-4 hover:decoration-olive"
@@ -108,8 +112,8 @@ export function Hero() {
 
         {/* Focus strip, in place of the reference's client-logo row */}
         <div data-hero-reveal className="mt-12 text-center">
-          <p className="font-serif text-xl text-muted italic">{hero.focusLabel}</p>
-          <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-7 gap-y-2">
+          <p {...edit('hero.focusLabel')} className="font-serif text-xl text-muted italic">{hero.focusLabel}</p>
+          <ul {...edit('hero.focusAreas')} className="mt-4 flex flex-wrap items-center justify-center gap-x-7 gap-y-2">
             {hero.focusAreas.map((area) => (
               <li key={area} className="flex items-center gap-2 text-sm font-medium text-forest sm:text-base">
                 <span aria-hidden="true" className="size-1.5 rounded-full bg-olive" />

@@ -285,10 +285,18 @@ function GroupField({ field }: { field: GroupFieldDef }) {
 }
 
 /** Lays out every field in a responsive two-column grid. */
-export function FieldGrid({ fields }: { fields: FieldDef[] }) {
+export function FieldGrid({ fields, columns = 2 }: { fields: FieldDef[]; columns?: 1 | 2 }) {
   return (
-    <div className="grid gap-5 md:grid-cols-2">
+    <div className={cn('grid gap-5', columns === 2 && 'md:grid-cols-2')}>
       {fields.map((field) => {
+        if (field.type === 'heading') {
+          return (
+            <div key={field.name} className={cn('border-t border-sand/70 pt-4 first:border-0 first:pt-0', columns === 2 && 'md:col-span-2')}>
+              <h3 className="text-xs font-semibold tracking-[0.14em] text-muted uppercase">{field.label}</h3>
+              {field.hint && <p className="mt-1 text-xs text-muted">{field.hint}</p>}
+            </div>
+          )
+        }
         const wide = field.wide || field.type === 'list' || field.type === 'group' || field.type === 'textarea'
         return (
           <div key={field.name} className={cn(wide && 'md:col-span-2')}>

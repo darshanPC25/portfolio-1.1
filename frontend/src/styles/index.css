@@ -15,6 +15,8 @@
   --font-serif: 'Instrument Serif', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   /* Section headings; switched to the serif by the Appearance setting. */
   --font-heading: var(--font-sans);
+  /* Body text; switched to the serif by the Appearance setting. */
+  --font-body: var(--font-sans);
 
   /* Surfaces */
   --color-ivory: #f8f5ec;
@@ -75,6 +77,65 @@
 }
 
 /* ------------------------------------------------------------------
+   DARK THEME
+   Night version of the same palette: deep forest surfaces, light sage
+   and cream text. The scale is mirrored, so every pairing used in the
+   light theme (dark text on ivory, ivory text on forest buttons ...)
+   keeps its contrast. Set by data-theme on <html> (hooks/useTheme.ts).
+------------------------------------------------------------------- */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root[data-theme='dark'] {
+  --color-ivory: #11160e;
+  --color-cream: #182014;
+  --color-sand: #2b3523;
+  --color-stone: #435036;
+
+  --color-mist: #1d2718;
+  --color-sage: #3c4b2c;
+  --color-fern: #6f8650;
+  --color-olive: #a4b97c;
+  --color-moss: #b9cb94;
+  --color-forest: #d3e0b9;
+  --color-pine: #eef3e2;
+
+  --color-ink: #ebe8dc;
+  --color-muted: #b7bda9;
+  --color-danger: #e7917d;
+
+  /* Hairline "white" borders and highlights become faint light lines. */
+  --color-white: #33402a;
+
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3), 0 14px 34px -14px rgb(0 0 0 / 0.6);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 30px 64px -26px rgb(0 0 0 / 0.75);
+  --shadow-clay:
+    inset 0 1px 0 rgb(255 255 255 / 0.05), inset 0 -2px 6px rgb(0 0 0 / 0.25),
+    0 18px 40px -18px rgb(0 0 0 / 0.65);
+  --shadow-button: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 10px 22px -10px rgb(0 0 0 / 0.7);
+}
+
+/*
+ * Panels designed to be dark in both themes (footer, Journey panel) keep the
+ * light theme's tokens, so they look exactly as designed on the dark page.
+ */
+:root[data-theme='dark'] .theme-fixed {
+  --color-ivory: #f8f5ec;
+  --color-cream: #f1ebdb;
+  --color-sand: #e4dbc5;
+  --color-stone: #cfc5ab;
+  --color-mist: #e3ead4;
+  --color-sage: #bccaa2;
+  --color-fern: #9db07f;
+  --color-olive: #6f8446;
+  --color-moss: #566b35;
+  --color-forest: #3a4f25;
+  --color-pine: #26361a;
+  --color-ink: #222a1b;
+  --color-muted: #5a6350;
+  --color-white: #ffffff;
+}
+
+/* ------------------------------------------------------------------
    BASE
 ------------------------------------------------------------------- */
 @layer base {
@@ -87,7 +148,7 @@
     margin: 0;
     background: var(--color-ivory);
     color: var(--color-ink);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-weight: 350;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -217,6 +278,48 @@
   .modal::backdrop {
     background: rgb(38 54 26 / 0.45);
     backdrop-filter: blur(6px);
+  }
+
+  /* Dark versions of the surfaces above that use fixed colours. */
+  :where([data-theme='dark']) .bg-hero {
+    background:
+      radial-gradient(60% 55% at 50% 42%, rgb(58 79 37 / 0.35), transparent 70%),
+      radial-gradient(45% 40% at 85% 12%, rgb(111 132 70 / 0.22), transparent 70%),
+      radial-gradient(40% 40% at 8% 85%, rgb(111 132 70 / 0.2), transparent 70%),
+      linear-gradient(180deg, var(--color-ivory) 0%, var(--color-mist) 100%);
+  }
+
+  :where([data-theme='dark']) .surface-clay {
+    background: linear-gradient(160deg, #1c2517 0%, var(--color-cream) 100%);
+    border-color: rgb(211 224 185 / 0.08);
+  }
+
+  :where([data-theme='dark']) .surface-glass {
+    background: rgb(17 22 14 / 0.6);
+    border-color: rgb(211 224 185 / 0.1);
+  }
+
+  :where([data-theme='dark']) .blob {
+    box-shadow:
+      inset -10px -14px 28px rgb(0 0 0 / 0.35),
+      inset 8px 10px 22px rgb(255 255 255 / 0.12),
+      0 30px 50px -22px rgb(0 0 0 / 0.6);
+  }
+
+  :where([data-theme='dark']) .blob-sage {
+    background: radial-gradient(circle at 32% 26%, #8ea36a 0%, #566b35 50%, #33421f 100%);
+  }
+
+  :where([data-theme='dark']) .blob-olive {
+    background: radial-gradient(circle at 32% 26%, #6f8446 0%, #46592a 52%, #26361a 100%);
+  }
+
+  :where([data-theme='dark']) .blob-cream {
+    background: radial-gradient(circle at 32% 26%, #d9cfb4 0%, #a89d80 55%, #6d6550 100%);
+  }
+
+  :where([data-theme='dark']) .modal::backdrop {
+    background: rgb(0 0 0 / 0.6);
   }
 }
 

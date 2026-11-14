@@ -5,7 +5,7 @@ import type { FieldDef } from '../components/form/fieldTypes'
 import { SectionCard } from '../components/SectionCard'
 import { PageHeader } from '../components/ui'
 
-const FIELDS: FieldDef[] = [
+export const EXPERIENCE_FIELDS: FieldDef[] = [
   { name: 'title', label: 'Role or title', type: 'text', required: true, max: 160, wide: true },
   { name: 'organisation', label: 'Organisation', type: 'text', max: 160 },
   { name: 'period', label: 'Period label', type: 'text', required: true, max: 40, placeholder: '2025 – Now' },
@@ -29,7 +29,7 @@ export function ExperiencePage() {
           resource="experience"
           noun="entry"
           title="Journey entries"
-          fields={FIELDS}
+          fields={EXPERIENCE_FIELDS}
           blank={BLANK}
           list={adminApi.experience}
           create={adminApi.createExperience}

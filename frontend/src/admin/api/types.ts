@@ -177,6 +177,10 @@ export interface Appearance {
   heroSceneEnabled: boolean
   motionEnabled: boolean
   updatedAt?: string | null
+  backgroundColor?: string | null
+  textColor?: string | null
+  bodyFont?: HeadingFont
+  cornerStyle?: 'SHARP' | 'SOFT' | 'ROUND'
 }
 
 export interface Seo {
