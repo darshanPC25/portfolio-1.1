@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { apiClient } from './apiClient'
 
+/** Same limits as the backend's ContactRequest validation. */
 export const contactMessageSchema = z.object({
   name: z.string().trim().min(2, 'Please enter your name.').max(80, 'Name is too long.'),
   email: z.string().trim().min(1, 'Please enter your email.').email('Please enter a valid email address.'),
@@ -10,12 +11,13 @@ export const contactMessageSchema = z.object({
     .trim()
     .min(10, 'Please write at least a sentence.')
     .max(2000, 'Message is too long (2000 characters maximum).'),
+  /** Anti-spam field hidden from people; it must stay empty. */
+  website: z.string().optional(),
 })
 
 export type ContactMessage = z.infer<typeof contactMessageSchema>
 
-/** Endpoint the backend will expose for public contact messages. */
-export const CONTACT_ENDPOINT = '/api/public/contact-messages'
+export const CONTACT_ENDPOINT = '/contact'
 
 export async function sendContactMessage(message: ContactMessage): Promise<void> {
   await apiClient.post(CONTACT_ENDPOINT, message)

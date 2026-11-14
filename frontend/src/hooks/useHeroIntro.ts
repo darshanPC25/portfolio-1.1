@@ -5,7 +5,8 @@ import { type RefObject, useLayoutEffect } from 'react'
 gsap.registerPlugin(ScrollTrigger)
 
 /**
- * Hero choreography, all skipped under prefers-reduced-motion:
+ * Hero choreography, skipped under prefers-reduced-motion or when `enabled`
+ * is false (motion switched off in Appearance settings):
  *
  * 1. Entrance: headline words rise out of their masks, the portrait is
  *    unveiled from the bottom while the photo settles from a slight zoom,
@@ -13,10 +14,10 @@ gsap.registerPlugin(ScrollTrigger)
  * 2. Scroll: as the hero leaves the screen its content lifts, the headline
  *    softens, and the portrait moves a little slower than the text for depth.
  */
-export function useHeroIntro(scope: RefObject<HTMLElement | null>) {
+export function useHeroIntro(scope: RefObject<HTMLElement | null>, enabled = true) {
   useLayoutEffect(() => {
     const root = scope.current
-    if (!root) return
+    if (!root || !enabled) return
 
     // Follow wall-clock time, so a slow device finishes the intro on schedule
     // instead of leaving the headline half-revealed while frames catch up.
@@ -51,5 +52,5 @@ export function useHeroIntro(scope: RefObject<HTMLElement | null>) {
     })
 
     return () => media.revert()
-  }, [scope])
+  }, [scope, enabled])
 }

@@ -1,8 +1,8 @@
 /**
  * Content model for the public portfolio.
  *
- * Everything the site displays is described here so the same shapes can be
- * served by the backend later without changing any component.
+ * Mirrors the backend's published snapshot (`GET /api/v1/portfolio`). A
+ * section is `null` when it has been hidden in the CMS.
  */
 
 export type SectionId =
@@ -28,7 +28,7 @@ export interface CallToAction {
 export interface SectionCopy {
   eyebrow: string
   heading: string
-  intro?: string
+  intro?: string | null
 }
 
 export interface Profile {
@@ -36,7 +36,7 @@ export interface Profile {
   preferredName: string
   title: string
   location: string
-  photoUrl: string
+  photoUrl: string | null
   photoAlt: string
   /** null until a resume has been uploaded */
   resumeUrl: string | null
@@ -81,12 +81,13 @@ export type ProjectStatus = 'in-development' | 'completed' | 'planned'
 
 export interface Project {
   id: string
+  slug: string
   name: string
   summary: string
   description: string
   highlights: string[]
   tags: string[]
-  imageUrl: string
+  imageUrl: string | null
   imageAlt: string
   status: ProjectStatus
   /** null until a real repository URL is provided */
@@ -122,19 +123,18 @@ export interface SocialLink {
   id: string
   platform: SocialPlatform
   label: string
-  /** null until a real URL is provided; links without a URL are not rendered */
   url: string | null
 }
 
 export interface GitHubContent extends SectionCopy {
   /** null until a GitHub username is provided */
   username: string | null
-  emptyMessage: string
+  emptyMessage: string | null
 }
 
 export interface ContactContent extends SectionCopy {
-  formHeading: string
-  submitLabel: string
+  formHeading: string | null
+  submitLabel: string | null
 }
 
 export interface FooterContent {
@@ -144,17 +144,39 @@ export interface FooterContent {
   note: string
 }
 
+export interface AppearanceSettings {
+  /** Hex accent colour; null in snapshots published before it existed. */
+  accentColor?: string | null
+  backgroundStyle?: 'ivory' | 'cream' | 'mist' | null
+  headingFont?: 'sans' | 'serif' | null
+  heroSceneEnabled: boolean
+  motionEnabled: boolean
+}
+
+export interface SeoSettings {
+  title: string
+  description: string
+  canonicalUrl: string | null
+  ogImageUrl: string | null
+  allowIndexing: boolean
+}
+
 export interface PortfolioContent {
+  /** Publication version this content came from. */
+  version: number
+  publishedAt: string
   profile: Profile
   navigation: NavItem[]
   hero: HeroContent
-  about: AboutContent
-  skills: SectionCopy & { groups: SkillGroup[] }
-  projects: SectionCopy & { items: Project[] }
-  journey: SectionCopy & { entries: JourneyEntry[] }
-  education: SectionCopy & { entries: EducationEntry[] }
-  github: GitHubContent
-  contact: ContactContent
+  about: AboutContent | null
+  skills: (SectionCopy & { groups: SkillGroup[] }) | null
+  projects: (SectionCopy & { items: Project[] }) | null
+  journey: (SectionCopy & { entries: JourneyEntry[] }) | null
+  education: (SectionCopy & { entries: EducationEntry[] }) | null
+  github: GitHubContent | null
+  contact: ContactContent | null
   socialLinks: SocialLink[]
   footer: FooterContent
+  appearance: AppearanceSettings
+  seo: SeoSettings
 }

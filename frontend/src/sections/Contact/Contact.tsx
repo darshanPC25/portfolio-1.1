@@ -15,6 +15,7 @@ const ContactForm = lazy(() => import('./ContactForm').then((module) => ({ defau
 
 export function Contact() {
   const { contact, profile, socialLinks } = usePortfolioContent()
+  if (!contact) return null
 
   return (
     <Section
@@ -37,7 +38,7 @@ export function Contact() {
           </p>
           <h2
             id="contact-heading"
-            className="text-5xl leading-[0.98] font-medium tracking-[-0.03em] text-balance text-olive sm:text-6xl lg:text-7xl"
+            className="font-heading text-5xl leading-[0.98] font-medium tracking-[-0.03em] text-balance text-olive sm:text-6xl lg:text-7xl"
           >
             <TextReveal text={contact.heading} delay={0.1} />
           </h2>
@@ -57,7 +58,7 @@ export function Contact() {
 
         <Reveal delay={STAGGER}>
           <Suspense fallback={<div className="surface-clay min-h-[32rem] rounded-panel" aria-hidden="true" />}>
-            <ContactForm heading={contact.formHeading} submitLabel={contact.submitLabel} />
+            <ContactForm heading={contact.formHeading ?? 'Send a message'} submitLabel={contact.submitLabel ?? 'Send'} />
           </Suspense>
         </Reveal>
       </div>

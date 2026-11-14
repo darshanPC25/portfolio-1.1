@@ -1,11 +1,12 @@
-import { useReducedMotion } from 'framer-motion'
 import { lazy, Suspense, useRef, useState } from 'react'
 import { Blob } from '@/components/UI/Blob'
 import { prefersStaticVisuals, useDeviceTier } from '@/hooks/useDeviceTier'
 import { useInViewport } from '@/hooks/useInViewport'
+import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import { SceneBoundary } from '@/three/SceneBoundary'
 import { isWebGLAvailable } from '@/three/webgl'
 import { cn } from '@/utils/cn'
+import { useMotionDisabled } from '@/hooks/useMotionDisabled'
 
 // Three.js is the heaviest dependency, so it loads after first paint.
 const HeroScene = lazy(() => import('@/three/HeroScene'))
@@ -29,10 +30,12 @@ function StaticBlobs({ hidden }: { hidden: boolean }) {
 export function HeroBackdrop() {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInViewport(ref)
-  const reduceMotion = useReducedMotion()
+  const reduceMotion = useMotionDisabled()
   const tier = useDeviceTier()
   const [sceneReady, setSceneReady] = useState(false)
-  const [use3D] = useState(() => isWebGLAvailable() && !prefersStaticVisuals())
+  const { appearance } = usePortfolioContent()
+  const [deviceCanRender3D] = useState(() => isWebGLAvailable() && !prefersStaticVisuals())
+  const use3D = appearance.heroSceneEnabled && deviceCanRender3D
 
   return (
     <div ref={ref} aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">

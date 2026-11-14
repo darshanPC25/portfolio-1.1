@@ -6,6 +6,7 @@ import { WavePanel } from './WavePanel'
 
 export function Journey() {
   const { journey } = usePortfolioContent()
+  if (!journey) return null
   const entries = [...journey.entries].sort((a, b) => a.order - b.order)
 
   return (

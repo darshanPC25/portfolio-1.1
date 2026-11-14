@@ -4,6 +4,7 @@ import { CheckCircle2, Send } from 'lucide-react'
 import { type InputHTMLAttributes, type TextareaHTMLAttributes, useId } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/Buttons/Button'
+import { getApiProblem } from '@/services/apiClient'
 import { type ContactMessage, contactMessageSchema, sendContactMessage } from '@/services/contactService'
 import { cn } from '@/utils/cn'
 
@@ -40,6 +41,9 @@ function Field({ label, error, children }: FieldShellProps) {
   )
 }
 
+const FIELDS = ['name', 'email', 'subject', 'message'] as const
+type Field = (typeof FIELDS)[number]
+
 type InputProps = InputHTMLAttributes<HTMLInputElement>
 type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>
 
@@ -48,24 +52,48 @@ export function ContactForm({ heading, submitLabel }: { heading: string; submitL
     register,
     handleSubmit,
     reset,
+    setError,
     formState: { errors },
   } = useForm<ContactMessage>({
     resolver: zodResolver(contactMessageSchema),
-    defaultValues: { name: '', email: '', subject: '', message: '' },
+    defaultValues: { name: '', email: '', subject: '', message: '', website: '' },
   })
 
   const mutation = useMutation({
     mutationFn: sendContactMessage,
     onSuccess: () => reset(),
+    onError: (error) => {
+      // Show the server's validation messages next to the matching fields.
+      const fieldErrors = getApiProblem(error)?.errors ?? {}
+      for (const [field, message] of Object.entries(fieldErrors)) {
+        if (FIELDS.includes(field as Field)) setError(field as Field, { type: 'server', message })
+      }
+    },
   })
+
+  const problem = mutation.isError ? getApiProblem(mutation.error) : null
+  const failureMessage =
+    problem?.status === 429
+      ? "You've sent a few messages in a short time. Please try again in a few minutes."
+      : problem?.status === 400
+        ? 'Please check the highlighted fields.'
+        : 'Your message could not be sent right now. Nothing was lost — please try again in a moment.'
 
   return (
     <form
       noValidate
       onSubmit={handleSubmit((values) => mutation.mutate(values))}
-      className="surface-clay flex flex-col gap-5 rounded-panel p-6 text-left sm:p-9"
+      className="surface-clay relative flex flex-col gap-5 rounded-panel p-6 text-left sm:p-9"
     >
       <h3 className="text-2xl tracking-tight text-ink">{heading}</h3>
+
+      {/* Anti-spam trap: hidden from people and assistive technology; bots tend to fill it. */}
+      <div aria-hidden="true" className="absolute -left-[9999px] size-px overflow-hidden">
+        <label>
+          Website
+          <input type="text" tabIndex={-1} autoComplete="off" {...register('website')} />
+        </label>
+      </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Name" error={errors.name?.message}>
@@ -112,11 +140,7 @@ export function ContactForm({ heading, submitLabel }: { heading: string; submitL
               Thank you — your message has been sent.
             </p>
           )}
-          {mutation.isError && (
-            <p className="text-danger">
-              Your message could not be sent right now. Nothing was lost — please try again in a moment.
-            </p>
-          )}
+          {mutation.isError && <p className="text-danger">{failureMessage}</p>}
         </div>
       </div>
     </form>

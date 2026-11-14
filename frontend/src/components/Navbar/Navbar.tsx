@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 'framer-motion'
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { Button } from '@/components/Buttons/Button'
@@ -8,6 +8,7 @@ import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import { useScrolled } from '@/hooks/useScrolled'
 import { cn } from '@/utils/cn'
 import { DURATION, EASE_SOFT } from '@/utils/motion'
+import { useMotionDisabled } from '@/hooks/useMotionDisabled'
 
 const PILL_SPRING = { type: 'spring', stiffness: 380, damping: 34 } as const
 
@@ -28,7 +29,7 @@ export function Navbar() {
   const scrolled = useScrolled()
   const hiddenByScroll = useHideOnScroll()
   const active = useActiveSection(navigation.map((item) => item.id))
-  const reduceMotion = useReducedMotion()
+  const reduceMotion = useMotionDisabled()
   const menuId = useId()
 
   // Thin reading-progress line along the bottom of the bar.

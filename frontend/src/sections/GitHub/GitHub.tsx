@@ -34,13 +34,14 @@ function LoadingGrid() {
 
 export function GitHub() {
   const { github } = usePortfolioContent()
-  const { data, isPending, isError } = useGitHubActivity(github.username)
+  const { data, isPending, isError } = useGitHubActivity(github?.username ?? null)
+  if (!github) return null
 
   return (
     <Section id="github" background="bg-ivory">
       <SectionHeading id="github" eyebrow={github.eyebrow} heading={github.heading} intro={github.intro} />
 
-      {!github.username && <StatusCard message={github.emptyMessage} />}
+      {!github.username && github.emptyMessage && <StatusCard message={github.emptyMessage} />}
 
       {github.username && isPending && (
         <div role="status">

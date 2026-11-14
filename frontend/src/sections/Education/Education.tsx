@@ -9,6 +9,7 @@ import { STAGGER } from '@/utils/motion'
 
 export function Education() {
   const { education } = usePortfolioContent()
+  if (!education) return null
   const entries = [...education.entries].sort((a, b) => a.order - b.order)
 
   return (

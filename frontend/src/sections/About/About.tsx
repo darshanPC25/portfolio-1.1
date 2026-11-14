@@ -12,6 +12,7 @@ const TILTS = ['lg:-rotate-2', 'lg:rotate-1 lg:-translate-y-4', 'lg:rotate-2']
 
 export function About() {
   const { about } = usePortfolioContent()
+  if (!about) return null
 
   return (
     <Section

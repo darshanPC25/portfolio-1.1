@@ -1,13 +1,24 @@
-import { defaultContent } from '@/data/defaultContent'
 import type { PortfolioContent } from '@/types/content'
+import { apiClient, resolveMediaUrl } from './apiClient'
 
 /**
- * Returns the content the public site renders.
- *
- * The backend does not exist yet, so this resolves the bundled initial
- * content. When the published-content endpoint is added, only this function
- * changes; every component already reads content through it.
+ * Loads the published portfolio. The backend only ever serves the latest
+ * published snapshot, so drafts never reach visitors and publishing needs no
+ * frontend rebuild.
  */
 export async function fetchPortfolioContent(): Promise<PortfolioContent> {
-  return defaultContent
+  const { data } = await apiClient.get<PortfolioContent>('/portfolio')
+  return {
+    ...data,
+    profile: {
+      ...data.profile,
+      photoUrl: resolveMediaUrl(data.profile.photoUrl),
+      resumeUrl: resolveMediaUrl(data.profile.resumeUrl),
+    },
+    projects: data.projects && {
+      ...data.projects,
+      items: data.projects.items.map((project) => ({ ...project, imageUrl: resolveMediaUrl(project.imageUrl) })),
+    },
+    seo: { ...data.seo, ogImageUrl: resolveMediaUrl(data.seo.ogImageUrl) },
+  }
 }

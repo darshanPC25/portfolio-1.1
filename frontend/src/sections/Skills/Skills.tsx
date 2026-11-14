@@ -19,6 +19,7 @@ const ICONS: Record<SkillIcon, LucideIcon> = {
 
 export function Skills() {
   const { skills } = usePortfolioContent()
+  if (!skills) return null
   const groups = [...skills.groups].sort((a, b) => a.order - b.order)
 
   return (

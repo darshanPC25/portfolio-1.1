@@ -7,7 +7,7 @@ interface SectionHeadingProps {
   id: string
   eyebrow: string
   heading: string
-  intro?: string
+  intro?: string | null
   align?: 'center' | 'start'
   tone?: 'dark' | 'light'
   className?: string
@@ -36,7 +36,7 @@ export function SectionHeading({
       <h2
         id={`${id}-heading`}
         className={cn(
-          'max-w-[18ch] text-4xl leading-[1.05] font-normal tracking-tight text-balance sm:text-5xl lg:text-6xl',
+          'max-w-[18ch] font-heading text-4xl leading-[1.05] font-normal tracking-tight text-balance sm:text-5xl lg:text-6xl',
           light ? 'text-ivory' : 'text-ink',
         )}
       >

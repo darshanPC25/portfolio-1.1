@@ -4,15 +4,16 @@ import { Button } from '@/components/Buttons/Button'
 import { AvailabilityBadge } from '@/components/UI/AvailabilityBadge'
 import { SplitWords } from '@/components/UI/TextReveal'
 import { useHeroIntro } from '@/hooks/useHeroIntro'
+import { useMotionDisabled } from '@/hooks/useMotionDisabled'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import { HeroBackdrop } from './HeroBackdrop'
 
 export function Hero() {
   const { hero, profile, education } = usePortfolioContent()
   const sectionRef = useRef<HTMLElement>(null)
-  useHeroIntro(sectionRef)
+  useHeroIntro(sectionRef, !useMotionDisabled())
 
-  const graduation = education.entries[0]?.period
+  const graduation = education?.entries[0]?.period
 
   return (
     <section
@@ -28,7 +29,7 @@ export function Hero() {
         className="mx-auto flex min-h-svh w-full max-w-page flex-col px-5 pt-28 pb-10 sm:px-8 sm:pt-32"
       >
         <h1 id="home-heading" className="text-center">
-          <span className="block text-[clamp(2.6rem,10.5vw,8.25rem)] leading-[0.95] font-medium tracking-[-0.035em] text-olive">
+          <span className="block font-heading text-[clamp(2.6rem,10.5vw,8.25rem)] leading-[0.95] font-medium tracking-[-0.035em] text-olive">
             <SplitWords text={hero.greeting} />
           </span>
           <span className="-mt-[0.06em] block font-serif text-[clamp(2.9rem,11.5vw,9.25rem)] leading-[0.92] tracking-[-0.02em] text-ink italic">
@@ -45,6 +46,7 @@ export function Hero() {
             <div
               data-hero-parallax
               className="aspect-[4/5] overflow-hidden rounded-t-full rounded-b-[2.5rem] border border-white/70 bg-linear-to-b from-mist to-sage shadow-lift">
+              {profile.photoUrl && (
               <img
                 src={profile.photoUrl}
                 alt={profile.photoAlt}
@@ -54,6 +56,7 @@ export function Hero() {
                 decoding="async"
                 className="size-full object-cover"
               />
+              )}
             </div>
           </figure>
 
@@ -92,7 +95,7 @@ export function Hero() {
             {profile.resumeUrl && (
               <a
                 data-hero-reveal
-                href={profile.resumeUrl}
+                href={profile.resumeUrl.includes('/api/v1/assets/') ? `${profile.resumeUrl}?download=true` : profile.resumeUrl}
                 download
                 className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-forest underline decoration-sage decoration-2 underline-offset-4 hover:decoration-olive"
               >

@@ -26,7 +26,11 @@ Copy `.env.example` to `.env` to change the backend address.
 
 | Variable            | Default                 | Purpose              |
 | ------------------- | ----------------------- | -------------------- |
-| `VITE_API_BASE_URL` | `http://localhost:8080` | Spring Boot backend  |
+| `VITE_API_BASE_URL` | `http://localhost:8080/api/v1` | Spring Boot REST API |
+
+The site needs the backend running: all content comes from `GET /api/v1/portfolio`.
+While it loads, a loading screen is shown; if the API cannot be reached, a
+"could not be loaded" screen with a retry button.
 
 ## Structure
 
@@ -38,10 +42,9 @@ src/
 ├── pages/         Home, NotFound
 ├── three/         WebGL hero scene (lazy-loaded)
 ├── hooks/         content, scroll, GitHub, hero intro
-├── services/      API client, content, contact, GitHub
-├── contexts/      ContentContext (content provider)
-├── data/          defaultContent.ts — all site copy
-├── types/         content model
+├── services/      API client (single Axios instance), content, contact, GitHub
+├── contexts/      ContentContext (loads published content from the API)
+├── types/         content model (mirrors the API's published snapshot)
 ├── utils/         class names, motion conventions, formatting
 └── styles/        index.css — design tokens and base styles
 public/images/     replaceable content images (profile, project previews)
@@ -49,9 +52,15 @@ public/images/     replaceable content images (profile, project previews)
 
 ## Content
 
-Every word and image on the site comes from `src/data/defaultContent.ts`, typed by
-`src/types/content.ts`, and reaches components through `usePortfolioContent()`.
-When the backend serves published content, only `services/contentService.ts` changes.
+Every word and image on the site comes from the backend's published snapshot
+(`services/contentService.ts`), typed by `src/types/content.ts`, and reaches components
+through `usePortfolioContent()`. Publishing in the backend updates the site on the next
+page load; no rebuild is needed.
+
+- A section hidden in the CMS arrives as `null` and is not rendered.
+- `appearance.heroSceneEnabled` switches the WebGL hero off; `appearance.motionEnabled`
+  switches all animation off (same as the visitor preferring reduced motion).
+- `seo` sets the page title, description, robots and Open Graph tags.
 
 Values that are not known yet are `null` and the UI adapts:
 
@@ -77,6 +86,27 @@ Tokens live in the `@theme` block of `src/styles/index.css` and become Tailwind 
 - **Motion** — conventions in `src/utils/motion.ts`: one easing curve, reveal-once on scroll,
   word-by-word headline reveals, 80ms stagger, decorative scroll parallax, small hover lift
   or tilt; all disabled under `prefers-reduced-motion`
+
+## Portfolio Studio (`/admin`)
+
+The private CMS lives in `src/admin/` and is a separate lazy-loaded bundle, so visitors never
+download it. `/admin/login` signs in; everything else under `/admin` requires a session.
+
+```
+src/admin/
+├── AdminApp.tsx          session check, studio routes, expired-session redirect
+├── api/                  adminClient (cookies + CSRF + retry), typed adminApi, query helpers
+├── components/           layout and sidebar, Publish control, dialogs, toasts,
+│   │                     CollectionManager (list CRUD + reorder + show/hide), SectionCard,
+│   │                     SingletonForm, FileUpload
+│   └── form/             declarative form engine: field definitions → inputs, zod
+│                         validation, server field errors, unsaved-changes state
+└── pages/                Login, Overview, Profile, Hero, About, Skills, Projects, Experience,
+                          Education, Social Links, Resume, Appearance, SEO, Messages, Settings
+```
+
+Every edit is saved to the draft. **Publish** (top bar, with confirmation) makes the draft live;
+the bar shows "Unpublished changes" until you do.
 
 ## 3D hero
 

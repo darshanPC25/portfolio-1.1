@@ -1,0 +1,17 @@
+# Tests run against a throwaway PostgreSQL container (see TestcontainersConfiguration).
+portfolio:
+  contact:
+    rate-limit:
+      max-requests: 3
+      window: 1m
+    ip-hash-salt: test-salt
+  admin:
+    bootstrap:
+      email: admin@test.local
+      password: test-only-password-123
+      display-name: Test Admin
+    login-rate-limit:
+      max-requests: 20
+      window: 1m
+  storage:
+    directory: target/test-uploads

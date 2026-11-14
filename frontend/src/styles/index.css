@@ -13,6 +13,8 @@
   /* Typography */
   --font-sans: 'Outfit Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-serif: 'Instrument Serif', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  /* Section headings; switched to the serif by the Appearance setting. */
+  --font-heading: var(--font-sans);
 
   /* Surfaces */
   --color-ivory: #f8f5ec;
@@ -216,6 +218,19 @@
     background: rgb(38 54 26 / 0.45);
     backdrop-filter: blur(6px);
   }
+}
+
+/* Motion switched off in the portfolio's Appearance settings (set by ContentProvider). */
+:root[data-reduce-motion] {
+  scroll-behavior: auto;
+}
+
+:root[data-reduce-motion] *,
+:root[data-reduce-motion] *::before,
+:root[data-reduce-motion] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

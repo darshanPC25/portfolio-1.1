@@ -1,6 +1,7 @@
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { type CSSProperties, useRef } from 'react'
 import { cn } from '@/utils/cn'
+import { useMotionDisabled } from '@/hooks/useMotionDisabled'
 
 interface BlobProps {
   tone?: 'sage' | 'olive' | 'cream'
@@ -25,7 +26,7 @@ interface BlobProps {
  */
 export function Blob({ tone = 'sage', round = false, drift = 'slow', parallax = 0.5, className, style }: BlobProps) {
   const ref = useRef<HTMLSpanElement>(null)
-  const reduceMotion = useReducedMotion()
+  const reduceMotion = useMotionDisabled()
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
   const y = useTransform(scrollYProgress, [0, 1], [parallax * 90, parallax * -90])
   const still = reduceMotion || parallax === 0

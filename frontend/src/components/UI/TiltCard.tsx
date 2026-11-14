@@ -1,7 +1,8 @@
-import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
+import { motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion'
 import type { PointerEvent, ReactNode } from 'react'
 import { cn } from '@/utils/cn'
 import { SOFT_SPRING } from '@/utils/motion'
+import { useMotionDisabled } from '@/hooks/useMotionDisabled'
 
 interface TiltCardProps {
   children: ReactNode
@@ -18,7 +19,7 @@ interface TiltCardProps {
  * the effect is off under reduced motion.
  */
 export function TiltCard({ children, max = 6, radius = 'rounded-card', className }: TiltCardProps) {
-  const reduceMotion = useReducedMotion()
+  const reduceMotion = useMotionDisabled()
   const rotateX = useSpring(0, SOFT_SPRING)
   const rotateY = useSpring(0, SOFT_SPRING)
   const lightX = useMotionValue(50)

@@ -1,6 +1,7 @@
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Fragment } from 'react'
 import { EASE_SOFT, VIEWPORT_ONCE, WORD_STAGGER } from '@/utils/motion'
+import { useMotionDisabled } from '@/hooks/useMotionDisabled'
 
 interface TextRevealProps {
   text: string
@@ -28,7 +29,7 @@ const word = {
  * time it scrolls into view. Renders plain text under reduced motion.
  */
 export function TextReveal({ text, className, delay = 0 }: TextRevealProps) {
-  const reduceMotion = useReducedMotion()
+  const reduceMotion = useMotionDisabled()
   if (reduceMotion) return <span className={className}>{text}</span>
 
   const words = text.split(' ')

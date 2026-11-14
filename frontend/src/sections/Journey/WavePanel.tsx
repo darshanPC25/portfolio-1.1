@@ -1,6 +1,7 @@
-import { motion, type MotionValue, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { motion, type MotionValue, useScroll, useTransform } from 'framer-motion'
 import { type ReactNode, useRef } from 'react'
 import { cn } from '@/utils/cn'
+import { useMotionDisabled } from '@/hooks/useMotionDisabled'
 
 interface Layer {
   fill: string
@@ -52,7 +53,7 @@ function WaveLayer({ layer, progress, still }: { layer: Layer; progress: MotionV
  */
 export function WavePanel({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
-  const reduceMotion = Boolean(useReducedMotion())
+  const reduceMotion = useMotionDisabled()
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
 
   return (

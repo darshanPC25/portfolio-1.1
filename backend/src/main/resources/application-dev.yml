@@ -1,0 +1,18 @@
+# Local development. Start PostgreSQL with `docker compose up -d` from the
+# project root, then put the matching credentials in backend/.env.
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/portfolio}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+logging:
+  level:
+    com.darshanpc.portfolio: DEBUG

@@ -1,6 +1,6 @@
 # Till-Now Context — Darshan Portfolio + Visual CMS
 
-Last updated: 2026-11-14 · Status: **Batches 1 and 2 approved. Waiting for Batch 3.**
+Last updated: 2026-11-14 · Status: **Batches 1 and 2 approved (commits "Batch1 Completed", "Batch2 Completed"). Batches 3 and 4 approved (not yet committed). Waiting for Batch 5.**
 
 This file summarises everything agreed and built so far, so work can resume in a new
 session without the original conversation.
@@ -102,9 +102,9 @@ Education, GitHub Activity, Contact, Footer.
 | Java       | JDK 25 installed (spec targets Java 21)                   |
 | Maven      | 3.9.14                                                    |
 | Node       | v25.1.0                                                   |
-| Docker     | installed                                                 |
-| Git        | installed; the project folder is **not** a git repository |
-| PostgreSQL | no local `psql`                                           |
+| Docker     | Docker Desktop 28.5 (start it before running the backend) |
+| Git        | the project is a git repository (Darshan commits each batch) |
+| PostgreSQL | a local **PostgreSQL 18 Windows service occupies port 5432**, so the Docker database runs on **5433** here (`POSTGRES_PORT=5433` in root `.env`) |
 
 Windows 11, project root `C:\Users\darshanPC\Desktop\Portfolio`.
 
@@ -117,13 +117,16 @@ Windows 11, project root `C:\Users\darshanPC\Desktop\Portfolio`.
 | Project root | `Desktop\Portfolio` itself is the root (no nested `darshan-portfolio/`) | In effect |
 | Fonts | Outfit (sans) + Instrument Serif (serif), self-hosted via `@fontsource` | In effect |
 | Tailwind | v4, tokens in a CSS `@theme` block (no `tailwind.config.js`) | In effect |
-| Content source | One typed data file read through a context/hook; backend replaces it later | In effect |
+| Content source | Frontend loads everything from `GET /api/v1/portfolio` (bundled data file removed in Batch 3) | In effect |
 | 3D | Single lazy-loaded WebGL canvas in the hero; CSS blobs everywhere else | In effect |
 | Unknown values | Stored as `null`, never invented; UI hides or shows "coming soon" | In effect |
-| Java version | Compile for Java 21 using the installed JDK 25 | **Proposed, not confirmed** |
-| PostgreSQL | Run via `docker-compose.yml` | **Proposed, not confirmed** |
-| Authentication | Short-lived JWT in an httpOnly cookie plus refresh token | **Proposed, not confirmed** |
-| First admin account | Created from environment variables on first startup | **Proposed, not confirmed** |
+| Java version | Compile for Java 21 (`--release 21`) with the installed JDK 25 | In effect since Batch 3 |
+| PostgreSQL | PostgreSQL 17 via `docker-compose.yml`; host port configurable | In effect since Batch 3 |
+| Spring Boot | 3.5.16 (latest 3.x); springdoc 2.10.0 | In effect |
+| Draft vs published | Content tables = draft; publishing stores an immutable JSON snapshot in `portfolio_publication`; public API serves only the latest snapshot | In effect |
+| Authentication | **Server-side sessions** (Spring Security), HttpOnly SameSite=Strict cookie + CSRF token. Chosen over the earlier JWT proposal because logout and lockout take effect immediately | In effect since Batch 4 |
+| First admin account | `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_DISPLAY_NAME`, used once while no admin exists | In effect since Batch 4 |
+| Uploads | Stored on disk (`UPLOAD_DIRECTORY`), type checked by content; public only once published | In effect since Batch 4 |
 
 ---
 
@@ -187,18 +190,17 @@ Also at the root: `README.md`, `.gitignore`, `.claude/launch.json` (preview conf
 
 ### How content flows
 - `src/types/content.ts` defines the content model (`PortfolioContent`).
-- `src/data/defaultContent.ts` holds every word and image path.
-- `services/contentService.ts` → `contexts/ContentContext.tsx` (TanStack Query) →
-  `hooks/usePortfolioContent()` → sections.
-- When the backend exists, only `contentService.fetchPortfolioContent()` changes.
+- *(Updated in Batch 3)* `services/contentService.ts` fetches `GET /api/v1/portfolio` →
+  `contexts/ContentContext.tsx` (TanStack Query, loading and error screens) →
+  `hooks/usePortfolioContent()` → sections. `src/data/defaultContent.ts` was removed.
 
 ### Endpoints the frontend already expects
 | Purpose | Call |
 | ------- | ---- |
-| Contact form | `POST {VITE_API_BASE_URL}/api/public/contact-messages` with `{ name, email, subject, message }` |
+| Contact form | *(Batch 3)* `POST {VITE_API_BASE_URL}/contact` with `{ name, email, subject, message, website }` |
 | GitHub activity | Public GitHub API, directly from the browser, once a username is set |
 
-`VITE_API_BASE_URL` defaults to `http://localhost:8080`.
+`VITE_API_BASE_URL` defaults to `http://localhost:8080/api/v1` (Batch 3).
 
 ### Design tokens (in `src/styles/index.css`)
 - Surfaces: `ivory #f8f5ec`, `cream #f1ebdb`, `sand #e4dbc5`, `stone #cfc5ab`
@@ -307,6 +309,139 @@ No sections were redesigned or removed. No dependencies were added.
 
 ---
 
+## 5c. Batch 3 — Spring Boot backend (approved)
+
+### Backend (`backend/`, package `com.darshanpc.portfolio`)
+- Java 21 · Spring Boot 3.5.16 · Web · Data JPA/Hibernate 6.6 · PostgreSQL · Flyway 11 ·
+  Validation · Lombok · springdoc 2.10 (Swagger UI in dev only) · Actuator (health only).
+- Packages: `config/`, `controller/`, `service/` (+`publication/`), `repository/`,
+  `entity/` (+`enums/`), `dto/` (`portfolio/`, `contact/`), `mapper/`, `security/`
+  (+`ratelimit/`), `admin/` (placeholder), `exception/`, `validation/`, `util/`.
+- Entities: PortfolioProfile, HeroContent, AboutContent (+AboutFact, ApproachStep),
+  PortfolioSection (headings, nav labels, visibility, per-section settings), SkillCategory,
+  Skill, Project, Experience, Education, SocialLink, PortfolioAppearance, SeoSettings,
+  ContactMessage, AdminUser, PortfolioAsset, PortfolioPublication.
+- Flyway: `V1__create_schema.sql` (tables, checks, indexes, single-row constraints),
+  `V2__seed_initial_content.sql` (Batch 1 copy; unknowns stay NULL; no admin users).
+- Hibernate `ddl-auto: validate`; JPA auditing fills `created_at`/`updated_at`;
+  `@Version` optimistic locking.
+
+### Publishing model
+- Content tables are the **draft**. `PublicationService.publish()` builds the public
+  snapshot (`PortfolioResponse`) and stores it as the next version.
+- Public endpoints read only the latest snapshot (cached in memory, refreshed when a
+  newer version number exists). Hidden sections → `null`; hidden items and social links
+  without URLs are excluded.
+- `InitialPublicationRunner` publishes the seed once on a fresh database.
+- There is no publish endpoint yet; it comes with the admin API.
+
+### API (`/api/v1`)
+`GET /portfolio`, `/profile`, `/projects`, `/projects/{id}` (id or slug), `/skills`,
+`/experience`, `/education`, `/social-links`; `POST /contact`.
+Errors are RFC 9457 problem JSON; validation errors include an `errors` field map.
+
+### Contact
+- Validation mirrors the frontend; `@SingleLine` blocks line breaks in name/subject.
+- Fixed-window rate limit per client IP (default 5 per 10 min) → 429 + `Retry-After`.
+- Hidden honeypot field `website`: filled → 202 but not stored.
+- Stored with status NEW, salted SHA-256 IP hash (raw IP never stored), user agent.
+
+### Configuration
+- Root `.env` (Docker Compose): `POSTGRES_DB/USER/PASSWORD/PORT`.
+- `backend/.env` (read via `spring.config.import`): `DB_URL/USERNAME/PASSWORD`,
+  `CORS_ALLOWED_ORIGINS`, contact rate limit, `CONTACT_IP_HASH_SALT`.
+- Both gitignored; the local ones were generated with a random password during Batch 3.
+
+### Frontend changes
+- Single Axios client (`services/apiClient.ts`) with problem-body helper and media URL
+  resolver; `VITE_API_BASE_URL=http://localhost:8080/api/v1`.
+- Content loaded from the API; branded loading and "could not be loaded / Try again" screens.
+- Sections hidden in the CMS are not rendered.
+- Appearance: `heroSceneEnabled` and `motionEnabled` wired in (`hooks/useMotionDisabled.ts`
+  replaces direct `useReducedMotion` calls; `data-reduce-motion` on `<html>` for CSS).
+- SEO settings applied to title/meta/canonical (`components/UI/SeoHead.tsx`).
+- Contact form: honeypot field, server field errors shown inline, rate-limit message.
+
+### Batch 3 tests
+- `./mvnw test`: 16 tests pass (7 public API, 5 contact, 4 rate limiter) against
+  PostgreSQL 17 in Testcontainers. Covers seeded content, id/slug lookup, 404 problem,
+  drafts private until published, unpublished project removed, API docs off outside dev,
+  contact persistence + IP hashing, field errors, malformed JSON, honeypot, 429.
+- Manual: backend run with `./mvnw spring-boot:run` against Docker Postgres; all
+  endpoints checked with curl; CORS allows only `http://localhost:5173`; Swagger UI works.
+- Browser: site renders entirely from the API; contact form posts and the row appears in
+  PostgreSQL; backend stopped → error screen; restarted → "Try again" recovers; restart
+  did not re-publish.
+- Frontend type-check and production build pass.
+
+---
+
+## 5d. Batch 4 — Portfolio Studio and authentication (approved)
+
+### Backend
+- **Spring Security** (`security/SecurityConfig`): `/api/v1/admin/**` requires ROLE_ADMIN except
+  `GET auth/csrf` and `POST auth/login`; everything public stays open. JSON 401/403 problems.
+  CORS with credentials for the frontend origin; `frame-ancestors` allows the studio to preview PDFs.
+- **Sessions:** cookie `PORTFOLIO_SESSION` (HttpOnly, SameSite=Strict, Secure configurable),
+  2 h idle timeout, new session id on sign-in, logout invalidates the session.
+- **CSRF:** session-bound token from `GET /admin/auth/csrf` (also returned by login), sent as
+  `X-CSRF-TOKEN`. Contact form is exempt (sessionless, rate limited).
+- **Login** (`admin/auth`): BCrypt cost 12; 10 attempts/IP/15 min → 429; 5 wrong passwords →
+  15 min lock; identical "Invalid email or password." for every failure; dummy hash for
+  unknown emails. Password policy 12–64 chars (≤ 72 bytes).
+- **Provisioning:** `AdminBootstrapRunner` creates the first admin from env vars only while the
+  table is empty; warns to remove `ADMIN_PASSWORD` afterwards. No registration endpoint.
+- **Account:** change display name/email and password (both require the current password).
+- **Studio APIs** (`admin/…`): profile + photo, resume, hero, about, sections (copy, visibility,
+  order), skills + categories, projects (CRUD, reorder, publish/unpublish, image), experience,
+  education, social links (CRUD + reorder), appearance, SEO + sharing image, messages
+  (filter, read/unread/archive, delete), overview counts, publish + history.
+- **Uploads** (`service/asset/AssetStorageService`): PNG/JPEG/WebP ≤ 5 MB, PDF ≤ 10 MB, sniffed
+  from bytes (SVG refused), random file names, SHA-256, image dimensions.
+  `GET /api/v1/assets/{id}` serves a file publicly only if the latest publication uses it.
+- **Unpublished-changes tracking:** `draft_state.last_modified_at` touched by every studio write
+  (including deletes); overview compares it with the latest publication.
+- **Migration V3:** appearance `accent_color`, `background_style` (IVORY/CREAM/MIST),
+  `heading_font` (SANS/SERIF); `draft_state` table. Snapshot schema version → 2.
+- Validation: `@WebUrl` (http/https only), `@LinkTarget` (#anchor, /path, http(s), mailto) —
+  blocks `javascript:` links; slugs unique (409); skill names unique per category (409).
+
+### Frontend (`src/admin/`, lazy-loaded separate bundle)
+- `/admin/login`: email + password, show/hide, zod validation, loading, error messages
+  (invalid, too many attempts, server unreachable), session-expired and signed-out notices,
+  redirect back to the requested page, already-signed-in redirect. No registration.
+- `/admin`: responsive layout, sidebar with the 14 menu items (drawer on mobile), unread badge,
+  top bar with "Unpublished changes" status, **Publish** (confirmation + optional note),
+  View site, Sign out.
+- Pages: Overview (live counts + publication history), Profile (+photo), Hero, About,
+  Skills, Projects (+image), Experience, Education, Social Links, Resume (upload, replace,
+  preview, download, remove), Appearance (accent colour, background, heading font, 3D and
+  motion switches, section order), SEO (+sharing image), Messages, Settings.
+- Shared engine: declarative fields → inputs + zod validation + server field errors +
+  "Unsaved changes" + Discard/Save; CollectionManager for list CRUD with reorder and show/hide;
+  confirmation before every delete and before publishing.
+- Public site now applies Appearance (accent → `--color-olive`, background → `--color-ivory`,
+  heading font → `--font-heading`) and downloads the resume as an attachment.
+
+### Batch 4 tests
+- `./mvnw test`: **41 pass** (11 auth, 14 studio content, 7 public API, 5 contact, 4 rate limiter)
+  against PostgreSQL 17 (Testcontainers). Auth: provisioning + hash, 401 without session,
+  CSRF required, generic failures, validation, lockout, IP rate limit, logout invalidation,
+  password and account changes. Content: every create/read/update/delete/reorder/visibility
+  call, uploads (PNG ok; SVG and disguised files 415; PDF ok), asset visibility before/after
+  publish, overview counts, publish flow.
+- Browser (real backend + Docker DB): footer Login → login page; validation; wrong password;
+  show/hide; sign-in; all 14 pages load without errors; projects add/edit/show/move/delete;
+  skills category + skill add/duplicate/reorder/move/delete; experience (server date error
+  shown in form), education, social links (mailto normalisation, bad URL rejected); resume
+  upload/preview/download/remove; SEO image upload/remove; hero + appearance edit → publish →
+  public site updated without rebuild → restored and republished (live = v4, original content);
+  messages read/archive/filter/delete; settings password errors; sign-out kills the session;
+  protected route redirect; mobile login and studio (drawer, no overflow).
+- Frontend type-check and production build pass.
+
+---
+
 ## 6. Placeholders and assumptions awaiting Darshan's input
 
 | Item | Current state | Needed |
@@ -324,13 +459,23 @@ No sections were redesigned or removed. No dependencies were added.
 | Skills | SQL and PostgreSQL were added beyond the interest list | Keep or remove |
 | Professional Journey | Two non-employment rows ("Now", "Next") | Real roles when they exist |
 | About copy and "How I work" steps | Written from the stated facts | Review wording |
+| Studio sign-in | Local test admin `admin@darshan.local`, random password in gitignored `backend/.env` | Change email + password in Studio → Settings, then remove `ADMIN_PASSWORD` from `backend/.env` |
 
 ---
 
 ## 7. Known issues
 
-- The contact form cannot deliver messages until the backend endpoint exists.
-- Main script is about 230 kB gzipped (206 kB after Batch 1; ScrollTrigger and the new
+- No email notification for new contact messages (inbox only).
+- Replaced uploads are kept on disk (an older publication may still use them); there is no
+  clean-up of unused files yet.
+- Changing the password does not sign out other active sessions.
+- Deleting an item leaves a gap in display order numbers (order is still correct).
+- Sessions live in server memory: restarting the backend signs the admin out.
+- The studio has no "restore placeholder" for the profile photo; replace it with a real photo.
+- Rate limiting is in memory: per instance, reset on restart.
+- Snapshots store the response JSON; a future change to its shape needs a re-publish
+  (tracked by `schema_version`).
+- Main script is about 226 kB gzipped after Batch 4 (studio is a separate ~20 kB + shared chunks) (206 kB after Batch 1; ScrollTrigger and the new
   motion components added ~24 kB). The 3D scene is a separate 267 kB chunk loaded after
   first paint; the contact form is a separate 38 kB chunk.
 - three.js logs a harmless `THREE.Clock` deprecation warning in the console.
@@ -339,12 +484,6 @@ No sections were redesigned or removed. No dependencies were added.
 
 ## 8. Not started
 
-- `backend/` (Spring Boot), `database/`, `docker-compose.yml`
-- Authentication and the `/admin/login` page
-- Portfolio Studio dashboard and all editing screens
-- Visual click-to-edit editor, draft/publish workflow
-- File uploads (photo, project images, resume)
-- Serving published content from PostgreSQL to the public site
-- SEO and appearance settings
+- Visual click-to-edit editor (next batch per the spec)
 
-**Next step:** Darshan sends Batch 3.
+**Next step:** Darshan sends Batch 5.

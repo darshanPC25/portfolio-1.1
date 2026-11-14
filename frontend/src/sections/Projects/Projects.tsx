@@ -11,6 +11,7 @@ import { ProjectDetails } from './ProjectDetails'
 export function Projects() {
   const { projects } = usePortfolioContent()
   const [selected, setSelected] = useState<Project | null>(null)
+  if (!projects) return null
 
   const ordered = [...projects.items].sort((a, b) => a.order - b.order)
   const featured = ordered.filter((project) => project.featured)
