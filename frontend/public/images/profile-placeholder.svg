@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Portrait placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eef2e2"/>
+      <stop offset="1" stop-color="#b9c89f"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6f1e2"/>
+      <stop offset="1" stop-color="#ddd3ba"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.35" r="0.6">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="500" fill="url(#bg)"/>
+  <rect width="400" height="500" fill="url(#glow)"/>
+  <!-- shoulders -->
+  <path d="M42 500c0-104 62-176 158-176s158 72 158 176z" fill="url(#body)"/>
+  <!-- neck -->
+  <path d="M168 286h64v58c0 18-14 32-32 32s-32-14-32-32z" fill="#e6dcc4"/>
+  <!-- head -->
+  <ellipse cx="200" cy="212" rx="78" ry="92" fill="url(#body)"/>
+  <!-- hair -->
+  <path d="M120 206c-6-64 30-104 82-104 50 0 86 38 80 102-10-34-34-54-58-58-34 12-72 22-104 60z" fill="#566b35"/>
+</svg>

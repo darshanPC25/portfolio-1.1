@@ -1,0 +1,235 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/outfit';
+@import '@fontsource/instrument-serif/400.css';
+@import '@fontsource/instrument-serif/400-italic.css';
+
+/* ------------------------------------------------------------------
+   DESIGN TOKENS
+   Warm ivory + sage / olive / forest, taken from the reference image.
+   Every token below becomes a Tailwind utility (bg-ivory, text-forest,
+   shadow-soft, rounded-card, ease-soft ...).
+------------------------------------------------------------------- */
+@theme {
+  /* Typography */
+  --font-sans: 'Outfit Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Instrument Serif', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+
+  /* Surfaces */
+  --color-ivory: #f8f5ec;
+  --color-cream: #f1ebdb;
+  --color-sand: #e4dbc5;
+  --color-stone: #cfc5ab;
+
+  /* Greens */
+  --color-mist: #e3ead4;
+  --color-sage: #bccaa2;
+  --color-fern: #9db07f;
+  --color-olive: #6f8446;
+  --color-moss: #566b35;
+  --color-forest: #3a4f25;
+  --color-pine: #26361a;
+
+  /* Text */
+  --color-ink: #222a1b;
+  --color-muted: #5a6350;
+
+  /* Feedback */
+  --color-danger: #9a3b2c;
+
+  /* Radius */
+  --radius-chip: 0.75rem;
+  --radius-card: 1.75rem;
+  --radius-panel: 2.5rem;
+
+  /* Shadows: soft, green-tinted, never pure black */
+  --shadow-soft: 0 1px 2px rgb(58 79 37 / 0.06), 0 14px 34px -14px rgb(58 79 37 / 0.24);
+  --shadow-lift: 0 2px 4px rgb(58 79 37 / 0.06), 0 30px 64px -26px rgb(38 54 26 / 0.38);
+  --shadow-clay:
+    inset 0 1px 0 rgb(255 255 255 / 0.8), inset 0 -2px 6px rgb(58 79 37 / 0.06),
+    0 18px 40px -18px rgb(58 79 37 / 0.3);
+  --shadow-button: inset 0 1px 0 rgb(255 255 255 / 0.22), 0 10px 22px -10px rgb(38 54 26 / 0.55);
+
+  /* Motion */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Breakpoints (Tailwind defaults kept, plus a small-phone step) */
+  --breakpoint-xs: 26rem;
+
+  /* Layout */
+  --container-page: 76rem;
+
+  --animate-drift: drift 14s ease-in-out infinite;
+  --animate-drift-slow: drift 22s ease-in-out infinite;
+
+  @keyframes drift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+    50% {
+      transform: translate3d(0, -14px, 0) rotate(4deg);
+    }
+  }
+}
+
+/* ------------------------------------------------------------------
+   BASE
+------------------------------------------------------------------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-ivory);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-weight: 350;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  /* Anchored sections clear the fixed navigation */
+  section[id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  ::selection {
+    background: var(--color-sage);
+    color: var(--color-pine);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-moss);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  dialog {
+    max-width: none;
+    max-height: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   COMPONENT-LEVEL STYLES that are awkward as utilities
+------------------------------------------------------------------- */
+@layer components {
+  /* Page backdrops */
+  .bg-hero {
+    background:
+      radial-gradient(60% 55% at 50% 42%, rgb(255 255 255 / 0.9), transparent 70%),
+      radial-gradient(45% 40% at 85% 12%, rgb(188 202 162 / 0.55), transparent 70%),
+      radial-gradient(40% 40% at 8% 85%, rgb(188 202 162 / 0.5), transparent 70%),
+      linear-gradient(180deg, var(--color-cream) 0%, var(--color-mist) 100%);
+  }
+
+  .bg-wash-sage {
+    background: linear-gradient(180deg, var(--color-ivory) 0%, var(--color-mist) 55%, var(--color-ivory) 100%);
+  }
+
+  .bg-wash-cream {
+    background: linear-gradient(180deg, var(--color-ivory) 0%, var(--color-cream) 100%);
+  }
+
+  /* Soft "clay" surface used by cards and tiles */
+  .surface-clay {
+    background: linear-gradient(160deg, #fbf8ef 0%, var(--color-cream) 100%);
+    border: 1px solid rgb(255 255 255 / 0.75);
+    box-shadow: var(--shadow-clay);
+  }
+
+  /* Frosted panel that sits over blobs */
+  .surface-glass {
+    background: rgb(248 245 236 / 0.55);
+    border: 1px solid rgb(255 255 255 / 0.7);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    box-shadow: var(--shadow-lift);
+  }
+
+  /* Sculptural CSS blobs (non-WebGL decoration) */
+  .blob {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 58% 42% 55% 45% / 48% 56% 44% 52%;
+    box-shadow:
+      inset -10px -14px 28px rgb(38 54 26 / 0.18),
+      inset 8px 10px 22px rgb(255 255 255 / 0.35),
+      0 30px 50px -22px rgb(38 54 26 / 0.4);
+  }
+
+  .blob-sage {
+    background: radial-gradient(circle at 32% 26%, #d6e1c1 0%, #a9bb8b 48%, #7f9559 100%);
+  }
+
+  .blob-olive {
+    background: radial-gradient(circle at 32% 26%, #9db07f 0%, #6f8446 52%, #4a5e2c 100%);
+  }
+
+  .blob-cream {
+    background: radial-gradient(circle at 32% 26%, #fffdf6 0%, #ece4cf 55%, #d3c8ab 100%);
+  }
+
+  .blob-round {
+    border-radius: 9999px;
+  }
+
+  /* Native <dialog> modal */
+  .modal {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+    transition:
+      opacity 0.3s var(--ease-soft),
+      transform 0.3s var(--ease-soft),
+      overlay 0.3s allow-discrete,
+      display 0.3s allow-discrete;
+  }
+
+  .modal[open] {
+    opacity: 1;
+    transform: none;
+  }
+
+  @starting-style {
+    .modal[open] {
+      opacity: 0;
+      transform: translateY(18px) scale(0.98);
+    }
+  }
+
+  .modal::backdrop {
+    background: rgb(38 54 26 / 0.45);
+    backdrop-filter: blur(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

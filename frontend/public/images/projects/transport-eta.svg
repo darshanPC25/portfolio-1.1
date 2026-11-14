@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustrative transport arrival and ticketing app">
+  <rect width="800" height="500" fill="#e3ead4"/>
+  <!-- map -->
+  <g stroke="#f8f5ec" stroke-width="14" fill="none" stroke-linecap="round">
+    <path d="M-20 120h380l120 110h340"/>
+    <path d="M140-20v200l-90 120v220"/>
+    <path d="M520-20v180l70 90v270"/>
+    <path d="M-20 380h300l110-70h430"/>
+  </g>
+  <rect x="190" y="150" width="120" height="80" rx="14" fill="#bccaa2" opacity="0.7"/>
+  <rect x="620" y="60" width="130" height="90" rx="14" fill="#bccaa2" opacity="0.7"/>
+  <rect x="640" y="330" width="120" height="110" rx="14" fill="#bccaa2" opacity="0.7"/>
+  <!-- route -->
+  <path d="M90 420C180 400 200 300 300 280s150-60 220-110 110-60 190-80" fill="none" stroke="#3a4f25" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 14"/>
+  <circle cx="90" cy="420" r="12" fill="#f8f5ec" stroke="#3a4f25" stroke-width="5"/>
+  <circle cx="300" cy="280" r="9" fill="#f8f5ec" stroke="#6f8446" stroke-width="5"/>
+  <circle cx="710" cy="90" r="12" fill="#3a4f25"/>
+  <!-- bus marker -->
+  <g transform="translate(486 136)">
+    <circle cx="26" cy="26" r="34" fill="#6f8446" opacity="0.25"/>
+    <rect width="52" height="52" rx="16" fill="#3a4f25"/>
+    <rect x="13" y="12" width="26" height="22" rx="5" fill="#f8f5ec"/>
+    <rect x="13" y="22" width="26" height="2.500" fill="#3a4f25"/>
+    <circle cx="19" cy="39" r="3.500" fill="#bccaa2"/>
+    <circle cx="33" cy="39" r="3.500" fill="#bccaa2"/>
+  </g>
+  <!-- ETA card -->
+  <g>
+    <rect x="40" y="40" width="270" height="150" rx="24" fill="#f8f5ec"/>
+    <rect x="64" y="64" width="80" height="10" rx="5" fill="#9db07f"/>
+    <text x="64" y="128" font-family="Georgia, serif" font-size="52" fill="#3a4f25">4 min</text>
+    <rect x="64" y="150" width="150" height="10" rx="5" fill="#cfc5ab"/>
+    <rect x="230" y="60" width="58" height="26" rx="13" fill="#566b35"/>
+    <rect x="244" y="69" width="30" height="8" rx="4" fill="#f8f5ec"/>
+  </g>
+  <!-- ticket -->
+  <g>
+    <path d="M470 300h270a20 20 0 0 1 20 20v30a16 16 0 0 0 0 32v30a20 20 0 0 1-20 20H470a20 20 0 0 1-20-20v-30a16 16 0 0 0 0-32v-30a20 20 0 0 1 20-20z" fill="#3a4f25"/>
+    <rect x="478" y="326" width="90" height="10" rx="5" fill="#bccaa2"/>
+    <rect x="478" y="350" width="140" height="14" rx="7" fill="#f8f5ec"/>
+    <rect x="478" y="384" width="70" height="10" rx="5" fill="#9db07f"/>
+    <path d="M650 312v108" stroke="#9db07f" stroke-width="2.500" stroke-dasharray="6 8"/>
+    <g fill="#f8f5ec">
+      <rect x="672" y="330" width="22" height="22" rx="4"/>
+      <rect x="702" y="330" width="22" height="22" rx="4" opacity="0.6"/>
+      <rect x="672" y="360" width="22" height="22" rx="4" opacity="0.6"/>
+      <rect x="702" y="360" width="22" height="22" rx="4"/>
+      <rect x="672" y="390" width="52" height="8" rx="4" opacity="0.6"/>
+    </g>
+  </g>
+</svg>

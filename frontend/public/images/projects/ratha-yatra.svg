@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Illustrative donation management screen">
+  <rect width="800" height="500" fill="#f1ebdb"/>
+  <!-- header -->
+  <rect x="36" y="30" width="728" height="56" rx="20" fill="#f8f5ec"/>
+  <circle cx="72" cy="58" r="14" fill="#6f8446"/>
+  <rect x="98" y="52" width="150" height="12" rx="6" fill="#3a4f25"/>
+  <rect x="620" y="44" width="120" height="28" rx="14" fill="#566b35"/>
+  <rect x="646" y="54" width="68" height="8" rx="4" fill="#f8f5ec"/>
+  <!-- total card -->
+  <rect x="36" y="108" width="330" height="170" rx="24" fill="#3a4f25"/>
+  <rect x="64" y="136" width="110" height="10" rx="5" fill="#bccaa2"/>
+  <text x="64" y="206" font-family="Georgia, serif" font-size="54" fill="#f8f5ec">Total</text>
+  <rect x="64" y="234" width="274" height="12" rx="6" fill="#566b35"/>
+  <rect x="64" y="234" width="180" height="12" rx="6" fill="#bccaa2"/>
+  <!-- chart card -->
+  <rect x="388" y="108" width="376" height="170" rx="24" fill="#f8f5ec"/>
+  <rect x="414" y="134" width="120" height="10" rx="5" fill="#9db07f"/>
+  <g>
+    <rect x="418" y="214" width="30" height="40" rx="8" fill="#bccaa2"/>
+    <rect x="462" y="194" width="30" height="60" rx="8" fill="#9db07f"/>
+    <rect x="506" y="204" width="30" height="50" rx="8" fill="#bccaa2"/>
+    <rect x="550" y="176" width="30" height="78" rx="8" fill="#6f8446"/>
+    <rect x="594" y="190" width="30" height="64" rx="8" fill="#9db07f"/>
+    <rect x="638" y="162" width="30" height="92" rx="8" fill="#3a4f25"/>
+    <rect x="682" y="184" width="30" height="70" rx="8" fill="#6f8446"/>
+  </g>
+  <!-- donations table -->
+  <rect x="36" y="300" width="728" height="172" rx="24" fill="#f8f5ec"/>
+  <rect x="64" y="322" width="140" height="10" rx="5" fill="#9db07f"/>
+  <g>
+    <circle cx="78" cy="366" r="13" fill="#bccaa2"/>
+    <rect x="104" y="360" width="170" height="11" rx="5.500" fill="#3a4f25"/>
+    <rect x="400" y="360" width="100" height="11" rx="5.500" fill="#cfc5ab"/>
+    <rect x="650" y="354" width="86" height="24" rx="12" fill="#e3ead4"/>
+    <rect x="668" y="362" width="50" height="8" rx="4" fill="#566b35"/>
+    <rect x="64" y="390" width="672" height="1.500" fill="#e4dbc5"/>
+
+    <circle cx="78" cy="414" r="13" fill="#9db07f"/>
+    <rect x="104" y="408" width="130" height="11" rx="5.500" fill="#3a4f25"/>
+    <rect x="400" y="408" width="120" height="11" rx="5.500" fill="#cfc5ab"/>
+    <rect x="650" y="402" width="86" height="24" rx="12" fill="#e3ead4"/>
+    <rect x="668" y="410" width="50" height="8" rx="4" fill="#566b35"/>
+    <rect x="64" y="438" width="672" height="1.500" fill="#e4dbc5"/>
+
+    <rect x="104" y="450" width="150" height="9" rx="4.500" fill="#cfc5ab"/>
+  </g>
+</svg>
