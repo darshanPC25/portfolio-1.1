@@ -37,6 +37,8 @@ export interface Profile {
   title: string
   location: string
   photoUrl: string | null
+  /** Photo for the dark theme; null means the regular photo is used in both themes. */
+  photoDarkUrl: string | null
   photoAlt: string
   /** null until a resume has been uploaded */
   resumeUrl: string | null

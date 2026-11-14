@@ -1,0 +1,32 @@
+<!-- AWS Lambda deployment package: compiled classes and resources at the root,
+     every runtime dependency as a jar in lib/. -->
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 https://maven.apache.org/xsd/assembly-2.2.0.xsd">
+    <id>lambda-package</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${project.build.directory}/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <excludes>
+                <!-- Never ship a local secrets file. -->
+                <exclude>**/.env</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
+            <scope>runtime</scope>
+            <excludes>
+                <!-- Lambda provides the HTTP layer; the embedded web server is not needed. -->
+                <exclude>org.apache.tomcat.embed:tomcat-embed-websocket</exclude>
+            </excludes>
+        </dependencySet>
+    </dependencySets>
+</assembly>

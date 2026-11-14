@@ -46,6 +46,7 @@ Fill in every value:
 | `CONTACT_IP_HASH_SALT` | Long random string; hashes contact-form IP addresses |
 | `SESSION_COOKIE_SECURE` | `true` in production (cookie only over HTTPS) |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_DISPLAY_NAME` | First administrator, created once on first start |
+| `GITHUB_TOKEN` | Optional. A GitHub token with no scopes enables the full-year contribution graph |
 
 ### 3. Start
 
@@ -103,6 +104,10 @@ Caddy obtains certificates automatically and sets the forwarding headers.
 | `DB_POOL_MAX_SIZE`, `DB_POOL_MIN_IDLE` | | `10`, `2` | HikariCP pool |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_DISPLAY_NAME` | first start only | | |
 | `CONTACT_RATE_LIMIT_MAX`, `CONTACT_RATE_LIMIT_WINDOW` | | `5`, `10m` | |
+| `GITHUB_TOKEN` | optional | — | Any GitHub token with no scopes: full-year contribution graph and a higher rate limit |
+| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` | optional | —, `587` | SMTP mailbox for contact form emails (turn them on in Studio → Messages) |
+| `MAIL_FROM`, `MAIL_SSL` | | `MAIL_USERNAME`, `false` | Sender address; `MAIL_SSL=true` for port 465 |
+| `GITHUB_CACHE_TTL` | | `30m` | How long GitHub activity is cached |
 
 The `prod` profile turns Swagger UI and API docs off, logs at INFO and exposes only
 `/actuator/health` (no details).
@@ -112,7 +117,7 @@ The `prod` profile turns Swagger UI and API docs off, logs at INFO and exposes o
 ## Database migrations
 
 Flyway runs automatically when the backend starts; the schema is versioned in
-`backend/src/main/resources/db/migration` (`V1` … `V5`). Hibernate only validates the schema
+`backend/src/main/resources/db/migration` (`V1` … `V7`). Hibernate only validates the schema
 (`ddl-auto: validate`) and never changes it.
 
 - **Upgrading:** deploy the new backend; pending migrations run before the app accepts

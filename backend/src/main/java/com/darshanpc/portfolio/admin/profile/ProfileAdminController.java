@@ -46,6 +46,18 @@ public class ProfileAdminController {
         return service.replacePhoto(file);
     }
 
+    @PostMapping(value = "/profile/photo-dark", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Set the dark-theme profile photo (PNG, JPEG or WebP, up to 5 MB)")
+    public ProfileResponse replaceDarkPhoto(@RequestPart("file") MultipartFile file) {
+        return service.replaceDarkPhoto(file);
+    }
+
+    @DeleteMapping("/profile/photo-dark")
+    @Operation(summary = "Remove the dark-theme photo (the regular photo is used in both themes)")
+    public ProfileResponse removeDarkPhoto() {
+        return service.removeDarkPhoto();
+    }
+
     @GetMapping("/resume")
     public ResumeResponse resume() {
         return new ResumeResponse(service.resume());

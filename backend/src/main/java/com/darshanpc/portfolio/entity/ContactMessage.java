@@ -1,6 +1,7 @@
 package com.darshanpc.portfolio.entity;
 
 import com.darshanpc.portfolio.entity.enums.ContactMessageStatus;
+import com.darshanpc.portfolio.entity.enums.EmailDeliveryStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -44,4 +45,15 @@ public class ContactMessage extends BaseEntity {
 
     @Column(name = "read_at")
     private Instant readAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "email_status", nullable = false, length = 20)
+    private EmailDeliveryStatus emailStatus = EmailDeliveryStatus.NOT_SENT;
+
+    @Column(name = "emailed_at")
+    private Instant emailedAt;
+
+    /** Short reason when the notification email failed. */
+    @Column(name = "email_error", length = 300)
+    private String emailError;
 }

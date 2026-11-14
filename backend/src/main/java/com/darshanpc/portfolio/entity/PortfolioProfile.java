@@ -34,6 +34,11 @@ public class PortfolioProfile extends BaseEntity {
     @JoinColumn(name = "photo_asset_id")
     private PortfolioAsset photo;
 
+    /** Optional photo for the dark theme; the regular photo is used when absent. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "photo_dark_asset_id")
+    private PortfolioAsset photoDark;
+
     @Column(name = "photo_alt", nullable = false, length = 200)
     private String photoAlt;
 

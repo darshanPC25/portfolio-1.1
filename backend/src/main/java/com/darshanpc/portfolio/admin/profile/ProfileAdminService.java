@@ -59,6 +59,24 @@ public class ProfileAdminService {
         return toResponse(profile);
     }
 
+    /** Sets the optional dark-theme photo. The previous file is kept, like {@link #replacePhoto}. */
+    @Transactional
+    public ProfileResponse replaceDarkPhoto(MultipartFile file) {
+        PortfolioProfile profile = profile();
+        profile.setPhotoDark(storage.store(file, AssetKind.IMAGE, profile.getPhotoAlt()));
+        draftChanges.markChanged();
+        return toResponse(profile);
+    }
+
+    /** Removes the dark-theme photo; the regular photo is then shown in both themes. */
+    @Transactional
+    public ProfileResponse removeDarkPhoto() {
+        PortfolioProfile profile = profile();
+        profile.setPhotoDark(null);
+        draftChanges.markChanged();
+        return toResponse(profile);
+    }
+
     @Transactional(readOnly = true)
     public AssetResponse resume() {
         return AssetResponse.of(profile().getResume());
@@ -86,7 +104,7 @@ public class ProfileAdminService {
     private static ProfileResponse toResponse(PortfolioProfile p) {
         return new ProfileResponse(
                 p.getFullName(), p.getPreferredName(), p.getTitle(), p.getLocation(),
-                AssetResponse.of(p.getPhoto()), p.getPhotoAlt(), AssetResponse.of(p.getResume()),
+                AssetResponse.of(p.getPhoto()), AssetResponse.of(p.getPhotoDark()), p.getPhotoAlt(), AssetResponse.of(p.getResume()),
                 p.getPublicEmail(), p.isAvailable(), p.getAvailabilityLabel(), p.getGithubUsername(),
                 p.getCopyrightText(), p.getFooterNote(), p.getUpdatedAt());
     }

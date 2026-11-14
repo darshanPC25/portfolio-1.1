@@ -1,7 +1,6 @@
 package com.darshanpc.portfolio.controller;
 
 import com.darshanpc.portfolio.entity.PortfolioAsset;
-import com.darshanpc.portfolio.entity.enums.AssetStorageType;
 import com.darshanpc.portfolio.exception.ResourceNotFoundException;
 import com.darshanpc.portfolio.repository.PortfolioAssetRepository;
 import com.darshanpc.portfolio.security.SecurityConfig;
@@ -48,7 +47,7 @@ public class AssetController {
             @PathVariable UUID id, @RequestParam(name = "download", defaultValue = "false") boolean download) {
         boolean admin = isAdmin();
         PortfolioAsset asset = assets.findById(id)
-                .filter(a -> a.getStorageType() == AssetStorageType.LOCAL)
+                .filter(AssetStorageService::isStored)
                 .filter(a -> admin || published.referencesAsset(a.getId()))
                 .orElseThrow(() -> new ResourceNotFoundException("File", id.toString()));
 

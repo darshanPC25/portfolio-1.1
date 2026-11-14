@@ -476,6 +476,32 @@ class AdminContentApiTest {
         admin.get("/api/v1/admin/publications").andExpect(jsonPath("$[0].note").value("Rename role"));
     }
 
+    @Test
+    void darkThemePhotoIsOptionalAndPublishedSeparately() throws Exception {
+        admin.get("/api/v1/admin/profile").andExpect(jsonPath("$.photoDark").value(org.hamcrest.Matchers.nullValue()));
+
+        String darkUrl = admin.body(admin.upload("/api/v1/admin/profile/photo-dark", png("file")))
+                .get("photoDark").get("url").asText();
+        mvc.perform(get(darkUrl)).andExpect(status().isNotFound());          // draft only
+        mvc.perform(get("/api/v1/portfolio")).andExpect(jsonPath("$.profile.photoDarkUrl").value(org.hamcrest.Matchers.nullValue()));
+
+        admin.post("/api/v1/admin/publications", Map.of("note", "Dark photo")).andExpect(status().isCreated());
+        mvc.perform(get("/api/v1/portfolio")).andExpect(jsonPath("$.profile.photoDarkUrl").value(darkUrl));
+        mvc.perform(get(darkUrl)).andExpect(status().isOk());
+
+        // Only images are accepted.
+        MockMultipartFile fake = new MockMultipartFile("file", "x.png", "image/png", "not an image".getBytes());
+        admin.upload("/api/v1/admin/profile/photo-dark", fake).andExpect(status().isUnsupportedMediaType());
+
+        // Removing it falls back to the regular photo in both themes.
+        admin.delete("/api/v1/admin/profile/photo-dark")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.photoDark").value(org.hamcrest.Matchers.nullValue()));
+        admin.post("/api/v1/admin/publications", Map.of("note", "No dark photo")).andExpect(status().isCreated());
+        mvc.perform(get("/api/v1/portfolio")).andExpect(jsonPath("$.profile.photoDarkUrl").value(org.hamcrest.Matchers.nullValue()));
+        mvc.perform(get(darkUrl)).andExpect(status().isNotFound());
+    }
+
     // ---------------------------------------------------------------- helpers
 
     @SuppressWarnings("unchecked")

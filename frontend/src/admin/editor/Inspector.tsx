@@ -113,7 +113,7 @@ export function Inspector({ target, onLiveChange, onDirtyChange, onSaved, onClos
 function Extra({ extra, onManage }: { extra: ExtraAction; onManage: (page: ManagePage) => void }) {
   switch (extra.kind) {
     case 'image':
-      return <ImageExtra label={extra.label} upload={extra.upload} />
+      return <ImageExtra {...extra} />
     case 'order':
       return <OrderExtra extra={extra} />
     case 'addSkill':
@@ -133,15 +133,32 @@ function Extra({ extra, onManage }: { extra: ExtraAction; onManage: (page: Manag
   }
 }
 
-function ImageExtra({ label, upload }: { label: string; upload: (file: File) => Promise<unknown> }) {
+function ImageExtra({
+  label,
+  upload,
+  title = 'Image',
+  hint,
+  remove,
+}: {
+  label: string
+  upload: (file: File) => Promise<unknown>
+  title?: string
+  hint?: string
+  remove?: { label: string; run: () => Promise<unknown> }
+}) {
   const toast = useToast()
   const mutation = useStudioMutation(upload, {
     invalidate: [PREVIEW_KEY],
     success: 'Image replaced in the draft.',
   })
+  const removal = useStudioMutation(remove?.run ?? (() => Promise.resolve()), {
+    invalidate: [PREVIEW_KEY],
+    success: 'Removed from the draft.',
+  })
   return (
     <div>
-      <p className="mb-2 text-xs font-semibold tracking-[0.14em] text-muted uppercase">Image</p>
+      <p className="mb-2 text-xs font-semibold tracking-[0.14em] text-muted uppercase">{title}</p>
+      {hint && <p className="mb-2 text-xs text-muted">{hint}</p>}
       <FileUpload
         label={label}
         accept={IMAGE_TYPES}
@@ -151,6 +168,17 @@ function ImageExtra({ label, upload }: { label: string; upload: (file: File) => 
         onFile={(file) => mutation.mutate(file)}
         onInvalid={(message) => toast.show(message, 'error')}
       />
+      {remove && (
+        <StudioButton
+          size="sm"
+          variant="ghost"
+          className="-ml-2 mt-2"
+          loading={removal.isPending}
+          onClick={() => removal.mutate()}
+        >
+          {remove.label}
+        </StudioButton>
+      )}
     </div>
   )
 }

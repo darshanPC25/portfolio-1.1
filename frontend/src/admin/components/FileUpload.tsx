@@ -1,5 +1,6 @@
 import { Upload } from 'lucide-react'
-import { useId, useRef } from 'react'
+import { useId, useRef, useState } from 'react'
+import { fitImage } from './imageResize'
 import { StudioButton } from './ui'
 
 interface FileUploadProps {
@@ -17,6 +18,7 @@ interface FileUploadProps {
 export function FileUpload({ label, accept, hint, maxBytes, busy = false, onFile, onInvalid }: FileUploadProps) {
   const input = useRef<HTMLInputElement>(null)
   const hintId = useId()
+  const [preparing, setPreparing] = useState(false)
   const allowed = accept.split(',').map((type) => type.trim())
 
   return (
@@ -28,13 +30,18 @@ export function FileUpload({ label, accept, hint, maxBytes, busy = false, onFile
         className="sr-only"
         tabIndex={-1}
         aria-hidden="true"
-        onChange={(event) => {
-          const file = event.target.files?.[0]
+        onChange={async (event) => {
+          const picked = event.target.files?.[0]
           event.target.value = ''
-          if (!file) return
-          if (!allowed.includes(file.type)) {
+          if (!picked) return
+          if (!allowed.includes(picked.type)) {
             onInvalid(`That file type isn't supported. ${hint}.`)
-          } else if (file.size > maxBytes) {
+            return
+          }
+          // Large photos are shrunk here; the server still checks type and size.
+          setPreparing(true)
+          const file = await fitImage(picked, maxBytes).finally(() => setPreparing(false))
+          if (file.size > maxBytes) {
             onInvalid(`That file is too large. ${hint}.`)
           } else {
             onFile(file)
@@ -44,11 +51,11 @@ export function FileUpload({ label, accept, hint, maxBytes, busy = false, onFile
       <StudioButton
         size="sm"
         icon={<Upload size={16} aria-hidden="true" />}
-        loading={busy}
+        loading={busy || preparing}
         aria-describedby={hintId}
         onClick={() => input.current?.click()}
       >
-        {busy ? 'Uploading…' : label}
+        {preparing ? 'Preparing…' : busy ? 'Uploading…' : label}
       </StudioButton>
       <p id={hintId} className="mt-1.5 text-xs text-muted">
         {hint}
@@ -57,6 +64,13 @@ export function FileUpload({ label, accept, hint, maxBytes, busy = false, onFile
   )
 }
 
+/** Upload limits; must match the backend (4 MB on AWS Lambda, set by VITE_MAX_*_MB at build time). */
+const MB = 1024 * 1024
+const imageMb = Number(import.meta.env.VITE_MAX_IMAGE_MB) || 5
+const documentMb = Number(import.meta.env.VITE_MAX_DOCUMENT_MB) || 10
+
 export const IMAGE_TYPES = 'image/png,image/jpeg,image/webp'
-export const IMAGE_HINT = 'PNG, JPEG or WebP, up to 5 MB'
-export const IMAGE_MAX = 5 * 1024 * 1024
+export const IMAGE_HINT = `PNG, JPEG or WebP, up to ${imageMb} MB (large photos are resized automatically)`
+export const IMAGE_MAX = imageMb * MB
+export const DOCUMENT_HINT = `PDF, up to ${documentMb} MB`
+export const DOCUMENT_MAX = documentMb * MB

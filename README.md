@@ -38,16 +38,21 @@ remove `ADMIN_PASSWORD` from `backend/.env`. Details: [backend/README.md](backen
 ## Tests
 
 ```bash
-cd backend && ./mvnw test        # 90 tests, needs Docker (Testcontainers PostgreSQL 17)
-cd frontend && npm test          # 24 unit tests (Vitest)
+cd backend && ./mvnw test        # 105 tests, needs Docker (Testcontainers PostgreSQL 17)
+cd frontend && npm test          # 28 unit tests (Vitest)
 cd frontend && npm run build     # type-check + production build
 ```
 
-Latest results (Batch 6, 14 Nov 2026): backend 90/90 pass, frontend 24/24 pass, build passes.
+Latest results (Batch 6, 14 Nov 2026): backend 105/105 pass, frontend 28/28 pass, build passes.
 Lighthouse against the production Docker stack: Accessibility 100, Best Practices 100,
 SEO 100 (mobile and desktop); Performance 81–90 desktop, 50–54 mobile (simulated slow phone).
 
 ## Deployment
+
+**Vercel + AWS Lambda + Neon** (the planned production setup): step-by-step in
+[DEPLOY-VERCEL-LAMBDA-NEON.md](DEPLOY-VERCEL-LAMBDA-NEON.md).
+
+**Single server with Docker** (alternative):
 
 `docker-compose.prod.yml` runs PostgreSQL, the backend and nginx (site + `/api` proxy) from
 `backend/Dockerfile` and `frontend/Dockerfile`. Step-by-step instructions, environment
@@ -64,6 +69,8 @@ variables, migrations and backups: [DEPLOYMENT.md](DEPLOYMENT.md).
   disk.
 - Link previews on social sites use the static tags in `index.html`, not the SEO settings from the
   Studio (crawlers do not run JavaScript).
-- No email notification for contact messages; one shared draft for all editors.
+- The GitHub contribution graph (including private contributions, as counts) needs `GITHUB_TOKEN` on the backend; without it the section shows
+  your commits counted from your 8 most recently pushed public repositories.
+- One shared draft for all editors.
 - Dark mode is a per-visitor choice (default light); it is not configurable from the Studio, and
   the Appearance background/text colours apply to the light theme only.

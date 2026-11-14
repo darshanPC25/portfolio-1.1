@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PublicationService {
 
     /** Version of the snapshot JSON format. Bump when {@link PortfolioResponse} changes shape. */
-    public static final int SNAPSHOT_SCHEMA_VERSION = 3;
+    public static final int SNAPSHOT_SCHEMA_VERSION = 4;
 
     private final PortfolioPublicationRepository publications;
     private final PortfolioSnapshotAssembler assembler;

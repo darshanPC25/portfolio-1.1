@@ -2,6 +2,10 @@ package com.darshanpc.portfolio.admin.messages;
 
 import com.darshanpc.portfolio.entity.ContactMessage;
 import com.darshanpc.portfolio.entity.enums.ContactMessageStatus;
+import com.darshanpc.portfolio.entity.enums.EmailDeliveryStatus;
+import com.darshanpc.portfolio.exception.BadRequestException;
+import com.darshanpc.portfolio.service.notification.ContactMailer;
+import com.darshanpc.portfolio.service.notification.ContactNotificationService;
 import com.darshanpc.portfolio.exception.ResourceNotFoundException;
 import com.darshanpc.portfolio.repository.ContactMessageRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +29,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,6 +46,8 @@ public class MessageAdminController {
 
     private final ContactMessageRepository messages;
     private final Clock clock;
+    private final ContactNotificationService notifications;
+    private final ContactMailer mailer;
 
     public record MessageResponse(
             UUID id,
@@ -50,7 +57,10 @@ public class MessageAdminController {
             String message,
             ContactMessageStatus status,
             Instant receivedAt,
-            Instant readAt) {
+            Instant readAt,
+            EmailDeliveryStatus emailStatus,
+            Instant emailedAt,
+            String emailError) {
     }
 
     public record MessagePage(List<MessageResponse> items, long total, int page, int size) {
@@ -92,6 +102,16 @@ public class MessageAdminController {
         return toResponse(message);
     }
 
+    @PostMapping("/{id}/email")
+    @Operation(summary = "Send (or re-send) the notification email for this message")
+    public MessageResponse resendEmail(@PathVariable UUID id) {
+        find(id);   // 404 for unknown ids
+        if (!mailer.isConfigured()) {
+            throw new BadRequestException("Email sending is not set up on the server yet.", "email");
+        }
+        return toResponse(notifications.deliver(id));
+    }
+
     @DeleteMapping("/{id}")
     @Transactional
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -105,6 +125,6 @@ public class MessageAdminController {
 
     private static MessageResponse toResponse(ContactMessage m) {
         return new MessageResponse(m.getId(), m.getName(), m.getEmail(), m.getSubject(), m.getMessage(),
-                m.getStatus(), m.getCreatedAt(), m.getReadAt());
+                m.getStatus(), m.getCreatedAt(), m.getReadAt(), m.getEmailStatus(), m.getEmailedAt(), m.getEmailError());
     }
 }

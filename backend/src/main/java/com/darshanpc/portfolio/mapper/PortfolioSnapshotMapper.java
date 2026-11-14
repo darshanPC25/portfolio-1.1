@@ -40,6 +40,7 @@ public class PortfolioSnapshotMapper {
                 profile.getTitle(),
                 profile.getLocation(),
                 assetUrl(profile.getPhoto()),
+                assetUrl(profile.getPhotoDark()),
                 profile.getPhotoAlt(),
                 assetUrl(profile.getResume()),
                 profile.getPublicEmail(),

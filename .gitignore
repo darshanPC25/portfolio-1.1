@@ -21,3 +21,10 @@ Thumbs.db
 
 # Production secrets
 .env.production
+
+# AWS SAM
+backend/.aws-sam/
+backend/samconfig.toml
+
+# Vercel
+frontend/.vercel/

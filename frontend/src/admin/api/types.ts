@@ -43,6 +43,8 @@ export interface Profile {
   title: string
   location: string
   photo: Asset | null
+  /** Optional photo for the dark theme. */
+  photoDark: Asset | null
   photoAlt: string
   resume: Asset | null
   publicEmail: string | null
@@ -203,6 +205,23 @@ export interface Message {
   status: MessageStatus
   receivedAt: string
   readAt: string | null
+  /** Whether the notification email went out. */
+  emailStatus: EmailStatus
+  emailedAt: string | null
+  emailError: string | null
+}
+
+export type EmailStatus = 'NOT_SENT' | 'PENDING' | 'SENT' | 'FAILED'
+
+/** Email notification settings. SMTP credentials live only on the server. */
+export interface NotificationSettings {
+  emailEnabled: boolean
+  recipientEmail: string | null
+  effectiveRecipient: string | null
+  smtpConfigured: boolean
+  smtpHost: string | null
+  fromAddress: string | null
+  updatedAt: string | null
 }
 
 export interface MessagePage {

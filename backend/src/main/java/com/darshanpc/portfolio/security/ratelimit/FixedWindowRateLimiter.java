@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * requests per {@code window}. Suited to a single application instance;
  * multiple instances would each keep their own counts.
  */
-public class FixedWindowRateLimiter {
+public class FixedWindowRateLimiter implements RateLimiter {
 
     /** Prune expired windows once the map grows past this many keys. */
     private static final int CLEANUP_THRESHOLD = 10_000;
@@ -38,6 +38,7 @@ public class FixedWindowRateLimiter {
      *
      * @return empty when allowed, otherwise how long until the key may try again
      */
+    @Override
     public Optional<Duration> tryAcquire(String key) {
         Instant now = clock.instant();
         if (windows.size() > CLEANUP_THRESHOLD) {

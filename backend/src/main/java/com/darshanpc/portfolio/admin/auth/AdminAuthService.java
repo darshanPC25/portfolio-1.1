@@ -5,7 +5,7 @@ import com.darshanpc.portfolio.entity.AdminUser;
 import com.darshanpc.portfolio.exception.InvalidCredentialsException;
 import com.darshanpc.portfolio.exception.RateLimitExceededException;
 import com.darshanpc.portfolio.repository.AdminUserRepository;
-import com.darshanpc.portfolio.security.ratelimit.FixedWindowRateLimiter;
+import com.darshanpc.portfolio.security.ratelimit.RateLimiter;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
@@ -33,7 +33,7 @@ public class AdminAuthService {
 
     private final AdminUserRepository admins;
     private final PasswordEncoder passwordEncoder;
-    private final FixedWindowRateLimiter loginRateLimiter;
+    private final RateLimiter loginRateLimiter;
     private final PortfolioProperties.Admin settings;
     private final Clock clock;
     private final String dummyHash;
@@ -41,7 +41,7 @@ public class AdminAuthService {
     public AdminAuthService(
             AdminUserRepository admins,
             PasswordEncoder passwordEncoder,
-            @Qualifier("loginRateLimiter") FixedWindowRateLimiter loginRateLimiter,
+            @Qualifier("loginRateLimiter") RateLimiter loginRateLimiter,
             PortfolioProperties properties,
             Clock clock) {
         this.admins = admins;

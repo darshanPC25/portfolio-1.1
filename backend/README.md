@@ -50,6 +50,44 @@ authentication, every studio CRUD endpoint, the visual editor, and the Batch 6 a
 `audit/`: every studio endpoint refuses anonymous callers, CORS, SQL-like input, no
 internals in errors, security headers, HTTP caching, constant query count, foreign keys).
 
+## Contact form emails
+
+Every contact message is stored first, then (when Studio → Messages → Notifications is on)
+emailed to the owner after the transaction commits, on a small background pool
+(`service/notification`). The outcome is recorded per message (`NOT_SENT`, `PENDING`, `SENT`,
+`FAILED` + reason) and a failed email can be re-sent from Studio
+(`POST /api/v1/admin/messages/{id}/email`). Settings: `GET/PUT /api/v1/admin/notifications`,
+`POST /api/v1/admin/notifications/test`.
+
+Security: SMTP credentials come only from `MAIL_*` environment variables (never the database or
+API); "From" is the owner's mailbox and the visitor goes in "Reply-To" (strictly parsed); emails
+are plain text; header values are reduced to one line; STARTTLS is required; 10 s timeouts; the
+existing per-IP rate limit and honeypot still apply; the mail server never affects `/actuator/health`.
+
+| Variable | Default | Notes |
+| --- | --- | --- |
+| `MAIL_HOST` | — | e.g. `smtp.gmail.com` |
+| `MAIL_PORT` | `587` | STARTTLS. For 465 also set `MAIL_SSL=true` |
+| `MAIL_USERNAME` | — | Your mailbox, e.g. `you@gmail.com` |
+| `MAIL_PASSWORD` | — | For Gmail an **app password**, never your account password |
+| `MAIL_FROM` | `MAIL_USERNAME` | Sender address if different |
+
+## GitHub section
+
+`GET /api/v1/github` returns the public GitHub activity for the published username (Profile →
+GitHub username, or else the username in the GitHub social link): profile, stats, top languages,
+recent repositories and a year of daily activity. It is fetched by the backend
+(`service/github`) and cached for `GITHUB_CACHE_TTL` (30 min), so visitors never call GitHub and
+the 60 requests/hour anonymous limit is never reached; if GitHub fails, the last good result is
+served. With `GITHUB_TOKEN` the activity is GitHub's contribution calendar (GraphQL); without it,
+the user's commits are counted from their 8 most recently pushed repositories.
+
+**Private contributions** appear only with a token: GitHub never exposes private activity
+anonymously. The calendar then includes them (as counts only, no repository names) and
+`contributions.privateContributions` reports how many, which the site shows as "including N in
+private repositories". Either use a token of your own account, or turn on GitHub → Settings →
+Public profile → "Include private contributions on my profile".
+
 ## Production
 
 Run with `SPRING_PROFILES_ACTIVE=prod` (`application-prod.yml`): every connection setting must

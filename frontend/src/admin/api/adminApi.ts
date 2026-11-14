@@ -12,6 +12,7 @@ import type {
   MessagePage,
   Message,
   MessageStatus,
+  NotificationSettings,
   Overview,
   Profile,
   Project,
@@ -58,6 +59,8 @@ export const adminApi = {
   profile: () => data<Profile>(adminClient.get('/profile')),
   updateProfile: (body: unknown) => data<Profile>(adminClient.put('/profile', body)),
   uploadPhoto: (file: File) => upload<Profile>('/profile/photo', file),
+  uploadDarkPhoto: (file: File) => upload<Profile>('/profile/photo-dark', file),
+  removeDarkPhoto: () => adminClient.delete<Profile>('/profile/photo-dark').then((r) => r.data),
   resume: () => data<{ resume: Asset | null }>(adminClient.get('/resume')),
   uploadResume: (file: File) => upload<Asset>('/resume', file),
   removeResume: () => adminClient.delete('/resume').then(() => undefined),
@@ -135,4 +138,11 @@ export const adminApi = {
   setMessageStatus: (id: string, status: MessageStatus) =>
     data<Message>(adminClient.patch(`/messages/${id}`, { status })),
   deleteMessage: (id: string) => adminClient.delete(`/messages/${id}`).then(() => undefined),
+  resendMessageEmail: (id: string) => data<Message>(adminClient.post(`/messages/${id}/email`)),
+
+  // Email notifications
+  notifications: () => data<NotificationSettings>(adminClient.get('/notifications')),
+  updateNotifications: (values: Record<string, unknown>) =>
+    data<NotificationSettings>(adminClient.put('/notifications', values)),
+  sendTestEmail: () => data<{ sentTo: string }>(adminClient.post('/notifications/test')),
 }

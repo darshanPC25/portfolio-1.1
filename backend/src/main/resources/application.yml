@@ -7,6 +7,9 @@ spring:
     name: portfolio-backend
   config:
     import: optional:file:.env[.properties]
+  # Sessions use the servlet container unless portfolio.session-store=jdbc (see JdbcSessionConfig).
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.session.SessionAutoConfiguration
   profiles:
     default: dev
 
@@ -45,14 +48,33 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
 
+  # Outgoing email (contact form notifications) through the owner's own mailbox.
+  # Credentials only ever come from the environment / backend/.env.
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    default-encoding: UTF-8
+    properties:
+      mail.smtp.auth: true
+      # Port 587: upgrade to TLS and refuse to send without it. Port 465: set MAIL_SSL=true.
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: ${MAIL_STARTTLS_REQUIRED:true}
+      mail.smtp.ssl.enable: ${MAIL_SSL:false}
+      mail.smtp.ssl.checkserveridentity: true
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
+
   mvc:
     problemdetails:
       enabled: true
 
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 11MB
+      max-file-size: ${UPLOAD_MAX_FILE_SIZE:10MB}
+      max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:11MB}
 
 server:
   port: ${SERVER_PORT:8080}
@@ -79,6 +101,10 @@ server:
         secure: ${SESSION_COOKIE_SECURE:false}   # set true when served over HTTPS
 
 management:
+  health:
+    # Never let the mail server's availability decide whether the app is "UP".
+    mail:
+      enabled: false
   endpoints:
     web:
       exposure:
@@ -120,7 +146,22 @@ portfolio:
       window: ${ADMIN_LOGIN_RATE_LIMIT_WINDOW:15m}
     max-failed-attempts: 5
     lock-duration: 15m
+  mail:
+    # Address messages are sent from; defaults to MAIL_USERNAME.
+    from: ${MAIL_FROM:}
+    # Send in the background (true) or before the response (false, required on Lambda).
+    async: ${MAIL_ASYNC:true}
+  # Where Studio sessions and rate-limit counters live: memory (one instance) or jdbc (PostgreSQL).
+  session-store: ${SESSION_STORE:memory}
+  rate-limit-store: ${RATE_LIMIT_STORE:memory}
+  github:
+    # Optional. Any GitHub token (no scopes needed): raises GitHub's rate limit and
+    # enables the contribution calendar in the GitHub section.
+    token: ${GITHUB_TOKEN:}
+    cache-ttl: ${GITHUB_CACHE_TTL:30m}
   storage:
+    # local: files on disk (UPLOAD_DIRECTORY). database: bytes in PostgreSQL (serverless hosting).
+    type: ${STORAGE_TYPE:local}
     directory: ${UPLOAD_DIRECTORY:./data/uploads}
-    max-image-size: 5MB
-    max-document-size: 10MB
+    max-image-size: ${UPLOAD_MAX_IMAGE_SIZE:5MB}
+    max-document-size: ${UPLOAD_MAX_DOCUMENT_SIZE:10MB}

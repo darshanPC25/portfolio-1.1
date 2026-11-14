@@ -25,6 +25,9 @@ springdoc:
     enabled: false
 
 portfolio:
+  # Sign-ins and rate limits survive restarts and work with more than one instance.
+  session-store: ${SESSION_STORE:jdbc}
+  rate-limit-store: ${RATE_LIMIT_STORE:jdbc}
   cors:
     # The public site origin(s), e.g. https://darshan.dev. No default on purpose.
     allowed-origins: ${CORS_ALLOWED_ORIGINS}

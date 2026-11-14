@@ -19,7 +19,15 @@ import { SOCIAL_FIELDS } from '../pages/SocialLinksPage'
  */
 
 export type ExtraAction =
-  | { kind: 'image'; label: string; upload: (file: File) => Promise<unknown> }
+  | {
+      kind: 'image'
+      label: string
+      upload: (file: File) => Promise<unknown>
+      /** Heading above the upload (default "Image"). */
+      title?: string
+      hint?: string
+      remove?: { label: string; run: () => Promise<unknown> }
+    }
   | { kind: 'order'; label: string; ids: () => Promise<string[]>; reorder: (ids: string[]) => Promise<unknown>; selfId: string }
   | { kind: 'manage'; label: string; page: ManagePage }
   | { kind: 'addSkill'; categoryId: string }
@@ -822,7 +830,17 @@ export function resolveTarget(id: string, content: PortfolioContent): EditTarget
             preview: (c, v) => {
               c.profile.photoAlt = str(v.photoAlt)
             },
-            extras: [{ kind: 'image', label: 'Replace photo', upload: adminApi.uploadPhoto }],
+            extras: [
+              { kind: 'image', label: 'Replace photo', upload: adminApi.uploadPhoto },
+              {
+                kind: 'image',
+                title: 'Dark mode photo',
+                label: 'Upload dark mode photo',
+                hint: 'Optional. Shown when visitors use the dark theme; switch the theme (sun/moon) to preview it.',
+                upload: adminApi.uploadDarkPhoto,
+                remove: { label: 'Use the regular photo in dark mode', run: adminApi.removeDarkPhoto },
+              },
+            ],
           }
       }
       return null

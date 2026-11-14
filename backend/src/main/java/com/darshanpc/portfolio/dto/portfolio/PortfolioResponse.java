@@ -40,6 +40,8 @@ public record PortfolioResponse(
             String title,
             String location,
             String photoUrl,
+            /** Photo for the dark theme, or null to use {@code photoUrl}. */
+            String photoDarkUrl,
             String photoAlt,
             String resumeUrl,
             String email,

@@ -42,6 +42,8 @@ JSON, so it downloads in parallel with the JavaScript.
 - `Dockerfile` + `nginx.conf`: static files with gzip, one-year immutable cache for
   `/assets/`, Content-Security-Policy and other security headers, SPA fallback, `/api/`
   proxied to the backend. See [../DEPLOYMENT.md](../DEPLOYMENT.md).
+- The GitHub section reads `GET /api/v1/github` (backend proxy), so the CSP allows no third-party
+  API calls (`connect-src 'self'`); only GitHub avatars load from GitHub.
 - Zod runs in `jitless` mode (`src/utils/zod.ts`) so it never needs `eval` under the CSP.
 
 The site needs the backend running: all content comes from `GET /api/v1/portfolio`.
@@ -161,3 +163,5 @@ remain as the fallback without WebGL, with Save-Data, or on very constrained har
 - The Appearance accent and per-element text colours are lightened for dark
   (`forDarkTheme` in `hooks/useTheme.ts`); the custom background and text colours apply to the
   light theme only. The 3D scene uses dimmer, cooler lighting in dark.
+- An optional **dark mode photo** (Studio → Profile, or the photo in the visual editor) replaces
+  the hero photo when the dark theme is on; without it the regular photo is used.

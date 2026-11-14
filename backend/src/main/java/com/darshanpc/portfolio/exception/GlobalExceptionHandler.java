@@ -97,9 +97,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             @NonNull HttpStatusCode status,
             @NonNull WebRequest request) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.PAYLOAD_TOO_LARGE, "The file is too large (10 MB maximum).");
+                HttpStatus.PAYLOAD_TOO_LARGE, "The file is too large.");
         problem.setTitle("Upload rejected");
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(problem);
+    }
+
+    @ExceptionHandler(com.darshanpc.portfolio.service.github.GitHubActivityService.GitHubUnavailableException.class)
+    ProblemDetail handleGitHubUnavailable(RuntimeException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+        problem.setTitle("GitHub unavailable");
+        return problem;
+    }
+
+    @ExceptionHandler(com.darshanpc.portfolio.service.notification.ContactMailer.MailDeliveryException.class)
+    ProblemDetail handleMailDelivery(RuntimeException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_GATEWAY, ex.getMessage());
+        problem.setTitle("Email not sent");
+        return problem;
     }
 
     /** Someone else saved the same record first. */

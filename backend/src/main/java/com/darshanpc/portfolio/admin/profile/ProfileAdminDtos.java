@@ -19,6 +19,7 @@ public final class ProfileAdminDtos {
             String title,
             String location,
             AssetResponse photo,
+            AssetResponse photoDark,
             String photoAlt,
             AssetResponse resume,
             String publicEmail,

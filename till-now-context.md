@@ -565,6 +565,72 @@ font, corner radius, 3D scene, animations.
   predates this change; the toggle syncs the editor canvas both ways; theme persists over reload.
   24 frontend tests pass.
 
+### GitHub Activity completed + dark mode photo (requested after Batch 6)
+- **GitHub:** new `GET /api/v1/github` (`service/github/GitHubActivityService`, `GitHubController`):
+  username = Profile → GitHub username, else parsed from the published GitHub social link (live
+  site uses `github.com/darshanPC25` from the link; the profile field is still empty). Returns
+  profile, stats (repos, stars, followers, following), top languages, 6 recent repos and a year
+  of daily activity. Cached 30 min in memory, stale result served on GitHub errors, 503 problem
+  if nothing cached. `GITHUB_TOKEN` (optional) → GraphQL contribution calendar; without it,
+  commits counted from the 8 most recently pushed own repos (~10 requests per refresh).
+  Uses HttpURLConnection (`SimpleClientHttpRequestFactory`) to avoid the JDK HttpClient loopback
+  issue on this machine. Frontend section rebuilt: ProfileCard, ContributionCalendar (scales to
+  card; last 26 weeks on phones), LanguageBar, repo cards. CSP `connect-src 'self'` now.
+- **Private contributions:** calendar source also returns `privateContributions` =
+  max(`restrictedContributionsCount`, commits in private repos from
+  `commitContributionsByRepository`); the grid shows "including N in private repositories".
+  Needs `GITHUB_TOKEN` (Darshan's own token, or his profile setting "Include private
+  contributions"). Not configured yet, so the live site still shows public commits only.
+- **Dark photo:** `V6__dark_mode_photo.sql` (`portfolio_profile.photo_dark_asset_id`),
+  `POST/DELETE /admin/profile/photo-dark`, snapshot `profile.photoDarkUrl` (schema version 4),
+  Hero picks it when the theme is dark (fallback: regular photo). Studio → Profile has a
+  "Dark mode photo" panel; the editor's photo inspector has upload + "Use the regular photo".
+- Verified: backend 96 tests, frontend 28 tests, build; GitHub section live with the real
+  account (30 commits / 8 repos, languages, repos) in light, dark and phone widths; dark photo on
+  the production trial stack: Studio upload of both photos → publish → hero shows the light photo
+  in light and the dark photo in dark; editor inspector shows the dark photo controls.
+
+### Contact form emails ("Send a message" → Darshan's inbox)
+- `V7__email_notifications.sql`: `notification_settings` (single row: `email_enabled`,
+  `recipient_email`; no credentials) and `contact_message.email_status/emailed_at/email_error`.
+- `service/notification/ContactMailer` (SMTP through Darshan's own mailbox; From = his address,
+  Reply-To = visitor, plain text, one-line headers, STARTTLS required, 10 s timeouts, friendly
+  error reasons) and `ContactNotificationService` (after-commit, async `mailExecutor`, records
+  SENT/FAILED, manual resend). `spring-boot-starter-mail`; mail health check disabled.
+- Admin: `GET/PUT /admin/notifications`, `POST /admin/notifications/test`,
+  `POST /admin/messages/{id}/email`. Studio → Messages: "Email delivery" status + "Send test
+  email", "Notifications" form (toggle + recipient), per-message pill + "Retry email".
+- Config: `MAIL_HOST/PORT/USERNAME/PASSWORD/FROM/SSL/STARTTLS_REQUIRED` in `backend/.env`
+  (and passed through `docker-compose.prod.yml`). **Not configured yet** on Darshan's machine.
+- Verified: 105 backend tests (GreenMail SMTP with auth: off → not sent; on → From/To/Reply-To/
+  plain text/headers; test email; server down → FAILED + retry → SENT; credentials never in API);
+  browser on the trial stack with Mailpit: enable + recipient, test email, real form submission
+  → email received, Studio "Emailed to you"; mail server down → "Email failed" + reason → Retry → sent.
+
+### Deployment target: Vercel + AWS Lambda + Neon (prepared; Darshan deploys himself)
+- Decisions (2026-11-15): Lambda in **ap-south-1 Mumbai**, Neon in **ap-southeast-1 Singapore**,
+  uploaded files **inside Neon**, **start fresh** (seed content; admin from parameters), Darshan
+  runs the deploy commands; Claude prepares and tests locally.
+- Backend: `V8__serverless_support.sql` (asset storage type DATABASE + `portfolio_asset_content`
+  bytea table; `rate_limit_window`; Spring Session JDBC tables). `portfolio.storage.type`
+  (local|database), `portfolio.session-store` (memory|jdbc, `JdbcSessionConfig`; prod default jdbc),
+  `portfolio.rate-limit-store` (memory|jdbc, `JdbcRateLimiter` in its own transaction so failed
+  sign-ins still count), `portfolio.mail.async` (false on Lambda), global contact cap 30/h.
+  `lambda/StreamLambdaHandler` (aws-serverless-java-container-springboot3 2.1.4, HTTP API v2,
+  binary types registered), `org.crac` for SnapStart, `application-lambda.yml` (Hikari 2, Flyway on
+  `DB_MIGRATION_URL`, 4 MB uploads, compression off). Maven profile `lambda` →
+  `target/portfolio-backend-lambda.zip` (62 MB zip / 70 MB unzipped). `backend/template.yaml` (SAM:
+  java21 arm64 2048 MB, SnapStart + alias `live`, HTTP API throttling 25/s burst 50, logs 30 days,
+  NoEcho secret parameters) — passes cfn-lint.
+- Frontend: `vercel.json` (proxy `/api/*` → API Gateway, SPA fallback, CSP and cache headers),
+  `scripts/set-api-origin.mjs`, upload limits from `VITE_MAX_IMAGE_MB`/`VITE_MAX_DOCUMENT_MB`,
+  photos resized in the browser to ≤ 2400 px (`imageResize.ts`).
+- Verified: ServerlessModeTest (cookie-only sessions in DB, DB file storage, shared limits, failed
+  sign-ins counted) and StreamLambdaHandlerTest (real handler, prod+lambda profiles, Postgres);
+  the zip run in AWS's `public.ecr.aws/lambda/java:21` runtime: portfolio 200, warm 0.23 s; sign-in
+  + base64 multipart photo upload + publish + visitor download, bytes identical.
+- Guide: `DEPLOY-VERCEL-LAMBDA-NEON.md`. Not deployed yet (no accounts signed in).
+
 ---
 
 ## 6. Placeholders and assumptions awaiting Darshan's input
@@ -573,7 +639,7 @@ font, corner radius, 3D scene, animations.
 | ---- | ------------- | ------ |
 | Profile photo | Illustrated silhouette | Real photo file |
 | Resume | `null`; download link hidden | Resume file |
-| GitHub username | `null`; section shows "will be linked here soon" | Username |
+| GitHub username | Profile field empty; section uses the GitHub social link (darshanPC25) | Optionally set the field; add `GITHUB_TOKEN` for the full contribution graph |
 | Social links | All `null`; icons hidden | GitHub, LinkedIn, email URLs |
 | Public contact email | `null` | Decide whether to show one |
 | Institution name | `null`; not shown | College / university name |

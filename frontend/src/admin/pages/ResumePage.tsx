@@ -5,7 +5,7 @@ import { resolveMediaUrl } from '@/services/apiClient'
 import { adminApi } from '../api/adminApi'
 import { adminKeys, errorMessage, useStudioMutation } from '../api/queries'
 import { ConfirmDialog } from '../components/Dialog'
-import { FileUpload } from '../components/FileUpload'
+import { FileUpload, DOCUMENT_HINT, DOCUMENT_MAX } from '../components/FileUpload'
 import { useToast } from '../components/Toast'
 import { EmptyState, formatBytes, formatDateTime, LoadState, PageHeader, Panel, StudioButton } from '../components/ui'
 
@@ -37,18 +37,15 @@ export function ResumePage() {
 
   return (
     <>
-      <PageHeader
-        title="Resume"
-        description="Upload a PDF. Visitors can download it from the hero once you publish."
-      />
+      <PageHeader title="Resume" description="Upload a PDF. Visitors can download it from the hero once you publish." />
       <Panel
         title="Resume PDF"
         actions={
           <FileUpload
             label={resume ? 'Replace PDF' : 'Upload PDF'}
             accept="application/pdf"
-            hint="PDF, up to 10 MB"
-            maxBytes={10 * 1024 * 1024}
+            hint={DOCUMENT_HINT}
+            maxBytes={DOCUMENT_MAX}
             busy={upload.isPending}
             onFile={(file) => upload.mutate(file)}
             onInvalid={(message) => toast.show(message, 'error')}
@@ -60,7 +57,9 @@ export function ResumePage() {
         ) : query.isError ? (
           <LoadState error={errorMessage(query.error)} onRetry={() => query.refetch()} />
         ) : !resume || !url ? (
-          <EmptyState>No resume uploaded yet. The download link stays hidden on the site until there is one.</EmptyState>
+          <EmptyState>
+            No resume uploaded yet. The download link stays hidden on the site until there is one.
+          </EmptyState>
         ) : (
           <>
             <div className="flex flex-col gap-4 rounded-2xl border border-sand/80 bg-cream/40 p-4 sm:flex-row sm:items-center">

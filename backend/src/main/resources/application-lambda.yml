@@ -1,0 +1,47 @@
+# AWS Lambda (API Gateway HTTP API) with Neon PostgreSQL.
+# Activate together with prod: SPRING_PROFILES_ACTIVE=prod,lambda
+#
+# Lambda instances are short-lived and many may run at once, so nothing may be
+# kept on local disk or only in memory: files, sessions and rate limits are all
+# stored in PostgreSQL, and email is sent before the response is returned.
+
+spring:
+  datasource:
+    # Neon's *pooled* connection string (host contains "-pooler"), e.g.
+    # jdbc:postgresql://ep-xxx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&prepareThreshold=0
+    hikari:
+      # One Lambda instance serves one request at a time.
+      maximum-pool-size: 2
+      minimum-idle: 0
+      idle-timeout: 60000
+      max-lifetime: 300000
+      connection-timeout: 10000
+  flyway:
+    # Migrations need a direct (non-pooled) connection: Neon's connection string without "-pooler".
+    url: ${DB_MIGRATION_URL:${DB_URL}}
+    user: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  servlet:
+    multipart:
+      # A Lambda request or response can carry about 6 MB, and binary data is
+      # base64-encoded on the way, so uploads stay at 4 MB.
+      max-file-size: 4MB
+      max-request-size: 4500KB
+
+server:
+  # API Gateway and the Vercel proxy do the compressing and HTTPS.
+  compression:
+    enabled: false
+  # The visitor's address arrives in X-Forwarded-For (set by Vercel).
+  forward-headers-strategy: framework
+
+portfolio:
+  storage:
+    type: database
+    max-image-size: 4MB
+    max-document-size: 4MB
+  session-store: jdbc
+  rate-limit-store: jdbc
+  mail:
+    # Lambda freezes as soon as the response is sent, so no background threads.
+    async: false

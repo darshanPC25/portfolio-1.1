@@ -8,6 +8,8 @@ export function normalizeContent(data: PortfolioContent): PortfolioContent {
     profile: {
       ...data.profile,
       photoUrl: resolveMediaUrl(data.profile.photoUrl),
+      // Older snapshots (before the dark photo existed) have no such field.
+      photoDarkUrl: resolveMediaUrl(data.profile.photoDarkUrl ?? null),
       resumeUrl: resolveMediaUrl(data.profile.resumeUrl),
     },
     projects: data.projects && {

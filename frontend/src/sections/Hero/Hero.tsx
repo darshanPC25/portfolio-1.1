@@ -5,6 +5,7 @@ import { AvailabilityBadge } from '@/components/UI/AvailabilityBadge'
 import { SplitWords } from '@/components/UI/TextReveal'
 import { useHeroIntro } from '@/hooks/useHeroIntro'
 import { useMotionDisabled } from '@/hooks/useMotionDisabled'
+import { useTheme } from '@/hooks/useTheme'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import { HeroBackdrop } from './HeroBackdrop'
 import { useEditables } from '@/editor/editable'
@@ -13,6 +14,9 @@ export function Hero() {
   const { hero, profile, education } = usePortfolioContent()
   const sectionRef = useRef<HTMLElement>(null)
   const edit = useEditables()
+  // A separate photo can be set for the dark theme; otherwise the regular one is used.
+  const dark = useTheme().theme === 'dark'
+  const photoSrc = (dark && profile.photoDarkUrl) || profile.photoUrl
   useHeroIntro(sectionRef, !useMotionDisabled())
 
   const graduation = education?.entries[0]?.period
@@ -49,9 +53,10 @@ export function Hero() {
             <div
               data-hero-parallax
               className="aspect-[4/5] overflow-hidden rounded-t-full rounded-b-[2.5rem] border border-white/70 bg-linear-to-b from-mist to-sage shadow-lift">
-              {profile.photoUrl && (
+              {photoSrc && (
               <img
-                src={profile.photoUrl}
+                key={photoSrc}
+                src={photoSrc}
                 alt={profile.photoAlt}
                 width={400}
                 height={500}

@@ -1,10 +1,11 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { Archive, Inbox, Mail, MailOpen, Reply, Trash2 } from 'lucide-react'
+import { Archive, Inbox, Mail, MailOpen, MailWarning, Reply, Send, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/utils/cn'
 import { adminApi } from '../api/adminApi'
 import { adminKeys, errorMessage, useStudioMutation } from '../api/queries'
-import type { Message, MessageStatus } from '../api/types'
+import type { EmailStatus, Message, MessageStatus } from '../api/types'
+import { EmailNotificationsPanel } from '../components/EmailNotificationsPanel'
 import { ConfirmDialog, Dialog } from '../components/Dialog'
 import { SectionCard } from '../components/SectionCard'
 import { EmptyState, formatDateTime, LoadState, PageHeader, Panel, StatusPill, StudioButton } from '../components/ui'
@@ -20,6 +21,13 @@ const STATUS_PILL: Record<MessageStatus, { tone: 'amber' | 'muted' | 'green'; la
   NEW: { tone: 'amber', label: 'Unread' },
   READ: { tone: 'green', label: 'Read' },
   ARCHIVED: { tone: 'muted', label: 'Archived' },
+}
+
+const EMAIL_PILL: Record<EmailStatus, { tone: 'amber' | 'muted' | 'green' | 'red'; label: string }> = {
+  NOT_SENT: { tone: 'muted', label: 'Not emailed' },
+  PENDING: { tone: 'amber', label: 'Emailing…' },
+  SENT: { tone: 'green', label: 'Emailed to you' },
+  FAILED: { tone: 'red', label: 'Email failed' },
 }
 
 export function MessagesPage() {
@@ -48,6 +56,12 @@ export function MessagesPage() {
     },
   })
 
+  const resend = useStudioMutation((id: string) => adminApi.resendMessageEmail(id), {
+    invalidate,
+    success: 'Message emailed to you.',
+    onSuccess: (message) => setOpen((current) => (current?.id === message.id ? message : current)),
+  })
+
   const openMessage = (message: Message) => {
     setOpen(message)
     if (message.status === 'NEW') setStatus.mutate({ id: message.id, status: 'READ' })
@@ -58,7 +72,10 @@ export function MessagesPage() {
 
   return (
     <>
-      <PageHeader title="Messages" description="Sent through the contact form on the site. Opening a message marks it as read." />
+      <PageHeader
+        title="Messages"
+        description="Sent through the contact form on the site, and emailed to you when notifications are on. Opening a message marks it as read."
+      />
       <div className="flex flex-col gap-6">
         <Panel>
           <div role="tablist" aria-label="Filter messages" className="mb-5 flex flex-wrap gap-2">
@@ -106,14 +123,21 @@ export function MessagesPage() {
                       ) : (
                         <MailOpen size={16} className="text-muted" aria-hidden="true" />
                       )}
-                      <span className={cn('truncate', message.status === 'NEW' ? 'font-semibold text-ink' : 'text-forest')}>
+                      <span
+                        className={cn('truncate', message.status === 'NEW' ? 'font-semibold text-ink' : 'text-forest')}
+                      >
                         {message.name}
                       </span>
                     </span>
                     <span className="min-w-0 flex-1 truncate text-sm">
-                      <span className={cn(message.status === 'NEW' && 'font-semibold text-ink')}>{message.subject}</span>
+                      <span className={cn(message.status === 'NEW' && 'font-semibold text-ink')}>
+                        {message.subject}
+                      </span>
                       <span className="text-muted"> — {message.message}</span>
                     </span>
+                    {message.emailStatus === 'FAILED' && (
+                      <MailWarning size={15} className="shrink-0 text-danger" aria-label="Email failed" />
+                    )}
                     <span className="text-xs text-muted sm:shrink-0">{formatDateTime(message.receivedAt)}</span>
                     <span className="sr-only">{STATUS_PILL[message.status].label}</span>
                   </button>
@@ -139,6 +163,8 @@ export function MessagesPage() {
           )}
         </Panel>
 
+        <EmailNotificationsPanel />
+
         <SectionCard sectionKey="CONTACT" title="Contact section" />
       </div>
 
@@ -152,7 +178,13 @@ export function MessagesPage() {
               </a>
               <span>{formatDateTime(open.receivedAt)}</span>
               <StatusPill tone={STATUS_PILL[open.status].tone}>{STATUS_PILL[open.status].label}</StatusPill>
+              <StatusPill tone={EMAIL_PILL[open.emailStatus].tone}>{EMAIL_PILL[open.emailStatus].label}</StatusPill>
             </div>
+            {open.emailStatus === 'FAILED' && open.emailError && (
+              <p role="alert" className="mt-3 rounded-2xl bg-[#fbeeea] px-4 py-3 text-sm text-danger dark:bg-[#3a1f19]">
+                {open.emailError}
+              </p>
+            )}
             <p className="mt-5 rounded-2xl bg-cream/60 p-5 whitespace-pre-wrap text-ink">{open.message}</p>
             <div className="mt-6 flex flex-wrap justify-end gap-2">
               <a
@@ -161,6 +193,15 @@ export function MessagesPage() {
               >
                 <Reply size={16} aria-hidden="true" /> Reply by email
               </a>
+              {open.emailStatus !== 'SENT' && open.emailStatus !== 'PENDING' && (
+                <StudioButton
+                  icon={<Send size={16} aria-hidden="true" />}
+                  loading={resend.isPending}
+                  onClick={() => resend.mutate(open.id)}
+                >
+                  {open.emailStatus === 'FAILED' ? 'Retry email' : 'Email to me'}
+                </StudioButton>
+              )}
               {open.status !== 'NEW' && (
                 <StudioButton
                   icon={<Mail size={16} aria-hidden="true" />}
@@ -177,7 +218,11 @@ export function MessagesPage() {
                   Archive
                 </StudioButton>
               )}
-              <StudioButton variant="danger" icon={<Trash2 size={16} aria-hidden="true" />} onClick={() => setDeleting(open)}>
+              <StudioButton
+                variant="danger"
+                icon={<Trash2 size={16} aria-hidden="true" />}
+                onClick={() => setDeleting(open)}
+              >
                 Delete
               </StudioButton>
             </div>
