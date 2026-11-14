@@ -75,4 +75,12 @@ Tokens live in the `@theme` block of `src/styles/index.css` and become Tailwind 
 - **Shadows** — `shadow-soft`, `shadow-lift`, `shadow-clay`, `shadow-button` (green-tinted)
 - **Surfaces** — `.surface-clay` (cards), `.surface-glass` (frosted panels), `.blob-*` (CSS shapes)
 - **Motion** — conventions in `src/utils/motion.ts`: one easing curve, reveal-once on scroll,
-  80ms stagger, small hover lift; all disabled under `prefers-reduced-motion`
+  word-by-word headline reveals, 80ms stagger, decorative scroll parallax, small hover lift
+  or tilt; all disabled under `prefers-reduced-motion`
+
+## 3D hero
+
+`src/three/` holds the only WebGL canvas, lazy-loaded after first paint. Quality adapts to
+the device (`src/hooks/useDeviceTier.ts`): desktops get finer geometry, soft shadows and
+more particles; phones and modest laptops get a lighter scene. CSS shapes paint first and
+remain as the fallback without WebGL, with Save-Data, or on very constrained hardware.

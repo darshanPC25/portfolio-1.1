@@ -1,6 +1,6 @@
 # Till-Now Context — Darshan Portfolio + Visual CMS
 
-Last updated: 2026-11-14 · Status: **Batch 1 approved. Waiting for Batch 2.**
+Last updated: 2026-11-14 · Status: **Batches 1 and 2 approved. Waiting for Batch 3.**
 
 This file summarises everything agreed and built so far, so work can resume in a new
 session without the original conversation.
@@ -242,6 +242,71 @@ npm run build    # production build into frontend/dist
 
 ---
 
+## 5b. Batch 2 — 3D experience and interactions (approved)
+
+No sections were redesigned or removed. No dependencies were added.
+
+### Hero 3D scene (`src/three/`)
+- `HeroScene.tsx` — canvas, per-tier quality settings, pointer tracking, scroll-linked
+  camera drift and group tilt, `PerformanceMonitor` drops pixel ratio on slow devices.
+- `OrganicBlob.tsx` — morphing clay forms (`MeshDistortMaterial` with sheen): grow-in
+  entrance, slow self-rotation, bobbing, pointer parallax by depth.
+- `Pebbles.tsx` — all solid spheres and tiny particles in **one instanced mesh**
+  (single draw call).
+- `SceneLighting.tsx` — key light, a near-frontal shadow-only light, soft VSM shadows
+  onto an invisible backdrop plane, and an environment built from local Lightformers
+  (no network HDR file).
+- `layout.ts` — wide and narrow (portrait) compositions; seeded particles that avoid
+  the text and portrait areas. `palette.ts` — scene colours and helpers.
+
+### Device-aware rendering (`src/hooks/useDeviceTier.ts`)
+| | high tier (desktop, fine pointer, > 4 cores, > 4 GB) | low tier (phones, tablets, modest laptops) |
+| --- | --- | --- |
+| Form geometry | 64 segments | 40 segments |
+| Particles | 18 | 7 |
+| Soft shadows | on | off |
+| Max pixel ratio | 1.75 | 1.25 |
+| Antialias | on | off |
+
+- Static CSS shapes paint first and cross-fade out when the canvas is ready.
+- CSS shapes stay as the fallback with no WebGL, Save-Data, ≤ 2 GB memory or ≤ 2 cores,
+  or if the 3D chunk fails.
+- The render loop stops when the hero is off screen; under reduced motion the scene
+  renders one still frame.
+
+### Animation
+- **Hero entrance (GSAP):** headline words rise from masks, portrait unveils from the
+  bottom while the photo settles from a zoom, then supporting content fades up.
+- **Hero scroll-out (GSAP ScrollTrigger):** content lifts, headline softens, portrait
+  lags slightly for depth.
+- **Text reveal:** every section heading and the Contact heading reveal word by word
+  (`components/UI/TextReveal.tsx`).
+- **Scroll parallax:** every decorative CSS blob drifts on scroll (`Blob` `parallax` prop).
+- **Section transition:** the Journey panel grows into place on scroll
+  (`components/UI/ScrollScale.tsx`) and its wave layers slide at different speeds.
+- **Project hover:** 3D tilt toward the mouse plus a light sheen and image zoom
+  (`components/UI/TiltCard.tsx`); touch input is ignored.
+- **Image transitions:** images fade in from a soft blur (`components/UI/FadeImage.tsx`);
+  project screens open from an inset clip when scrolled into view.
+- **Navigation:** shared active pill glides between links, bar hides on scroll down and
+  returns on scroll up (stays while focused or menu open), reading-progress line,
+  slide-in on load, staggered mobile menu, animated menu icon.
+- All of it is disabled under `prefers-reduced-motion`.
+
+### Batch 2 tests
+- Type-check and production build pass.
+- Desktop (1024 px, high tier): 3D forms, pebbles, particles and soft shadows render;
+  intro plays; headline fades and nav hides/returns on scroll; active pill tracks
+  sections; card tilt, sheen and image zoom apply only to the hovered card; Journey
+  panel scales and wave layers move.
+- Mobile (375 px, low tier detected): narrow layout, no horizontal overflow, mobile menu
+  opens with staggered items (checked through the DOM).
+- No console errors.
+- Not tested: an actual reduced-motion setting (the pane cannot emulate it), real
+  phones, browsers other than the built-in one.
+
+---
+
 ## 6. Placeholders and assumptions awaiting Darshan's input
 
 | Item | Current state | Needed |
@@ -265,8 +330,9 @@ npm run build    # production build into frontend/dist
 ## 7. Known issues
 
 - The contact form cannot deliver messages until the backend endpoint exists.
-- Main script is about 206 kB gzipped; the 3D scene is a separate 245 kB chunk loaded
-  after first paint.
+- Main script is about 230 kB gzipped (206 kB after Batch 1; ScrollTrigger and the new
+  motion components added ~24 kB). The 3D scene is a separate 267 kB chunk loaded after
+  first paint; the contact form is a separate 38 kB chunk.
 - three.js logs a harmless `THREE.Clock` deprecation warning in the console.
 
 ---
@@ -281,4 +347,4 @@ npm run build    # production build into frontend/dist
 - Serving published content from PostgreSQL to the public site
 - SEO and appearance settings
 
-**Next step:** Darshan sends Batch 2.
+**Next step:** Darshan sends Batch 3.

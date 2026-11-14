@@ -5,6 +5,7 @@ import { Blob } from '@/components/UI/Blob'
 import { Reveal } from '@/components/UI/Reveal'
 import { Section } from '@/components/UI/Section'
 import { SocialLinks } from '@/components/UI/SocialLinks'
+import { TextReveal } from '@/components/UI/TextReveal'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import { STAGGER } from '@/utils/motion'
 
@@ -38,7 +39,7 @@ export function Contact() {
             id="contact-heading"
             className="text-5xl leading-[0.98] font-medium tracking-[-0.03em] text-balance text-olive sm:text-6xl lg:text-7xl"
           >
-            {contact.heading}
+            <TextReveal text={contact.heading} delay={0.1} />
           </h2>
           {contact.intro && <p className="max-w-[44ch] text-lg text-pretty text-muted">{contact.intro}</p>}
 

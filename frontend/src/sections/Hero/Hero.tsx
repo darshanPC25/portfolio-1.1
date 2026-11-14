@@ -2,6 +2,7 @@ import { ArrowRight, ArrowUpRight, Download, GraduationCap, MapPin } from 'lucid
 import { useRef } from 'react'
 import { Button } from '@/components/Buttons/Button'
 import { AvailabilityBadge } from '@/components/UI/AvailabilityBadge'
+import { SplitWords } from '@/components/UI/TextReveal'
 import { useHeroIntro } from '@/hooks/useHeroIntro'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
 import { HeroBackdrop } from './HeroBackdrop'
@@ -22,19 +23,16 @@ export function Hero() {
     >
       <HeroBackdrop />
 
-      <div className="mx-auto flex min-h-svh w-full max-w-page flex-col px-5 pt-28 pb-10 sm:px-8 sm:pt-32">
+      <div
+        data-hero-content
+        className="mx-auto flex min-h-svh w-full max-w-page flex-col px-5 pt-28 pb-10 sm:px-8 sm:pt-32"
+      >
         <h1 id="home-heading" className="text-center">
-          <span
-            data-hero-reveal
-            className="block text-[clamp(2.6rem,10.5vw,8.25rem)] leading-[0.95] font-medium tracking-[-0.035em] text-olive"
-          >
-            {hero.greeting}
+          <span className="block text-[clamp(2.6rem,10.5vw,8.25rem)] leading-[0.95] font-medium tracking-[-0.035em] text-olive">
+            <SplitWords text={hero.greeting} />
           </span>
-          <span
-            data-hero-reveal
-            className="-mt-[0.06em] block font-serif text-[clamp(2.9rem,11.5vw,9.25rem)] leading-[0.92] tracking-[-0.02em] text-ink italic"
-          >
-            {hero.role}
+          <span className="-mt-[0.06em] block font-serif text-[clamp(2.9rem,11.5vw,9.25rem)] leading-[0.92] tracking-[-0.02em] text-ink italic">
+            <SplitWords text={hero.role} />
           </span>
         </h1>
 
@@ -44,7 +42,9 @@ export function Hero() {
             data-hero-portrait
             className="relative z-10 mx-auto w-[min(68vw,19rem)] lg:order-2 lg:w-[21rem] xl:w-[23rem]"
           >
-            <div className="aspect-[4/5] overflow-hidden rounded-t-full rounded-b-[2.5rem] border border-white/70 bg-linear-to-b from-mist to-sage shadow-lift">
+            <div
+              data-hero-parallax
+              className="aspect-[4/5] overflow-hidden rounded-t-full rounded-b-[2.5rem] border border-white/70 bg-linear-to-b from-mist to-sage shadow-lift">
               <img
                 src={profile.photoUrl}
                 alt={profile.photoAlt}

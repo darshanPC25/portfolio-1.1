@@ -3,6 +3,7 @@ import { Button } from '@/components/Buttons/Button'
 import { Blob } from '@/components/UI/Blob'
 import { Card } from '@/components/UI/Card'
 import { Tag } from '@/components/UI/Tag'
+import { TiltCard } from '@/components/UI/TiltCard'
 import type { Project } from '@/types/content'
 import { ProjectLinks } from './ProjectLinks'
 import { ProjectPreview } from './ProjectPreview'
@@ -51,9 +52,11 @@ export function FeaturedProjectCard({ project, onViewDetails }: ProjectCardProps
         <Blob tone="olive" className="top-[-12%] right-[-6%] size-[42%]" />
         <Blob tone="sage" className="bottom-[-14%] left-[-8%] size-[46%]" drift="normal" />
         <Blob tone="cream" round className="top-[8%] left-[-5%] size-[13%]" drift="normal" />
-        <div className="surface-glass relative rounded-panel p-4 sm:p-6">
-          <ProjectPreview project={project} />
-        </div>
+        <TiltCard max={4} radius="rounded-panel">
+          <div className="surface-glass relative rounded-panel p-4 sm:p-6">
+            <ProjectPreview project={project} />
+          </div>
+        </TiltCard>
       </div>
     </article>
   )
@@ -62,31 +65,36 @@ export function FeaturedProjectCard({ project, onViewDetails }: ProjectCardProps
 /** Compact card used in the project grid. */
 export function ProjectCard({ project, onViewDetails }: ProjectCardProps) {
   return (
-    <Card interactive padding="none" className="group flex h-full flex-col p-3">
-      <ProjectPreview project={project} />
-      <div className="flex flex-1 flex-col px-3 pt-6 pb-3">
-        <Tag tone="green" className="self-start">
-          {PROJECT_STATUS_LABEL[project.status]}
-        </Tag>
-        <h3 className="mt-3 text-2xl leading-snug tracking-tight text-balance text-ink">{project.name}</h3>
-        <p className="mt-2 text-[0.95rem] text-pretty text-muted">{project.summary}</p>
-        <div className="mt-5">
-          <ProjectTags project={project} />
+    <TiltCard>
+      <Card
+        padding="none"
+        className="group flex h-full flex-col p-3 transition-shadow duration-500 ease-soft hover:shadow-lift"
+      >
+        <ProjectPreview project={project} />
+        <div className="flex flex-1 flex-col px-3 pt-6 pb-3">
+          <Tag tone="green" className="self-start">
+            {PROJECT_STATUS_LABEL[project.status]}
+          </Tag>
+          <h3 className="mt-3 text-2xl leading-snug tracking-tight text-balance text-ink">{project.name}</h3>
+          <p className="mt-2 text-[0.95rem] text-pretty text-muted">{project.summary}</p>
+          <div className="mt-5">
+            <ProjectTags project={project} />
+          </div>
+          <div className="mt-auto pt-6">
+            <ProjectLinks project={project} />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-3 -ml-3"
+              onClick={() => onViewDetails(project)}
+              icon={<ArrowUpRight size={16} />}
+            >
+              View details
+              <span className="sr-only"> of {project.name}</span>
+            </Button>
+          </div>
         </div>
-        <div className="mt-auto pt-6">
-          <ProjectLinks project={project} />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mt-3 -ml-3"
-            onClick={() => onViewDetails(project)}
-            icon={<ArrowUpRight size={16} />}
-          >
-            View details
-            <span className="sr-only"> of {project.name}</span>
-          </Button>
-        </div>
-      </div>
-    </Card>
+      </Card>
+    </TiltCard>
   )
 }

@@ -1,5 +1,6 @@
 import { cn } from '@/utils/cn'
 import { Reveal } from './Reveal'
+import { TextReveal } from './TextReveal'
 
 interface SectionHeadingProps {
   /** Section id; the heading gets `${id}-heading` for aria-labelledby. */
@@ -24,14 +25,14 @@ export function SectionHeading({
 }: SectionHeadingProps) {
   const light = tone === 'light'
   return (
-    <Reveal
-      className={cn('flex flex-col gap-3', align === 'center' ? 'items-center text-center' : 'items-start', className)}
-    >
-      <p className={cn('font-serif text-lg italic', light ? 'text-sage' : 'text-muted')}>
-        <span aria-hidden="true">/ </span>
-        {eyebrow}
-        <span aria-hidden="true"> /</span>
-      </p>
+    <div className={cn('flex flex-col gap-3', align === 'center' ? 'items-center text-center' : 'items-start', className)}>
+      <Reveal>
+        <p className={cn('font-serif text-lg italic', light ? 'text-sage' : 'text-muted')}>
+          <span aria-hidden="true">/ </span>
+          {eyebrow}
+          <span aria-hidden="true"> /</span>
+        </p>
+      </Reveal>
       <h2
         id={`${id}-heading`}
         className={cn(
@@ -39,13 +40,15 @@ export function SectionHeading({
           light ? 'text-ivory' : 'text-ink',
         )}
       >
-        {heading}
+        <TextReveal text={heading} delay={0.05} />
       </h2>
       {intro && (
-        <p className={cn('mt-1 max-w-[52ch] text-base text-pretty sm:text-lg', light ? 'text-mist' : 'text-muted')}>
-          {intro}
-        </p>
+        <Reveal delay={0.2}>
+          <p className={cn('mt-1 max-w-[52ch] text-base text-pretty sm:text-lg', light ? 'text-mist' : 'text-muted')}>
+            {intro}
+          </p>
+        </Reveal>
       )}
-    </Reveal>
+    </div>
   )
 }

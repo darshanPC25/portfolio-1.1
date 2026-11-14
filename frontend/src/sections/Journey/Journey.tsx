@@ -1,4 +1,4 @@
-import { Reveal } from '@/components/UI/Reveal'
+import { ScrollScale } from '@/components/UI/ScrollScale'
 import { Section } from '@/components/UI/Section'
 import { SectionHeading } from '@/components/UI/SectionHeading'
 import { usePortfolioContent } from '@/hooks/usePortfolioContent'
@@ -10,7 +10,7 @@ export function Journey() {
 
   return (
     <Section id="journey" background="bg-ivory" className="!max-w-[84rem]">
-      <Reveal>
+      <ScrollScale>
         <WavePanel>
           <div className="grid gap-10 px-6 py-24 sm:px-10 sm:py-28 lg:grid-cols-[1fr_1.15fr] lg:gap-16 lg:px-16 lg:py-36">
             <SectionHeading
@@ -43,7 +43,7 @@ export function Journey() {
             )}
           </div>
         </WavePanel>
-      </Reveal>
+      </ScrollScale>
     </Section>
   )
 }

@@ -1,39 +1,77 @@
-import { Float, MeshDistortMaterial } from '@react-three/drei'
+import { MeshDistortMaterial } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
+import { type RefObject, useRef } from 'react'
+import { type BufferGeometry, type Group, MathUtils, type Mesh } from 'three'
+import type { FormSpec } from './layout'
+import { clamp01, easeOutCubic } from './palette'
 
-export interface OrganicBlobProps {
-  position: [number, number, number]
-  /** Per-axis scale; unequal values give the stretched, sculpted look. */
-  scale: [number, number, number]
-  color: string
-  /** 0 keeps a perfect sphere; ~0.4 is a soft organic form. */
-  distort?: number
-  /** Set to 0 to freeze the surface (reduced motion). */
-  speed?: number
-  floatIntensity?: number
-  rotation?: [number, number, number]
+export interface Pointer {
+  x: number
+  y: number
 }
 
-/** Matte, clay-like sculptural form that slowly breathes and floats. */
-export function OrganicBlob({
-  position,
-  scale,
-  color,
-  distort = 0.38,
-  speed = 1.2,
-  floatIntensity = 0.8,
-  rotation = [0, 0, 0],
-}: OrganicBlobProps) {
+interface OrganicBlobProps {
+  spec: FormSpec
+  index: number
+  /** World-space position derived from the spec and the current viewport. */
+  position: [number, number, number]
+  radius: number
+  geometry: BufferGeometry
+  pointer: RefObject<Pointer>
+  animate: boolean
+  castShadow: boolean
+}
+
+/** How far an object at depth z follows the pointer: nearer objects move more. */
+export const parallaxDepth = (z: number) => 0.22 + (z + 3) * 0.12
+
+/**
+ * Matte, clay-like sculptural form. It grows in on load, breathes (surface
+ * distortion), turns slowly, bobs, and leans toward the pointer.
+ */
+export function OrganicBlob({ spec, index, position, radius, geometry, pointer, animate, castShadow }: OrganicBlobProps) {
+  const group = useRef<Group>(null)
+  const mesh = useRef<Mesh>(null)
+
+  useFrame((state, delta) => {
+    const g = group.current
+    if (!g) return
+    const t = state.clock.elapsedTime
+    const intro = easeOutCubic(clamp01((t - 0.25 - index * 0.09) / 1.5))
+    const depth = parallaxDepth(spec.z)
+    const bob = Math.sin(t * 0.55 + index * 1.7) * 0.12
+
+    g.scale.setScalar(intro)
+    g.position.x = MathUtils.damp(g.position.x, position[0] + pointer.current.x * depth, 2.4, delta)
+    g.position.y = MathUtils.damp(g.position.y, position[1] - pointer.current.y * depth + bob, 2.4, delta)
+
+    if (mesh.current) {
+      mesh.current.rotation.y += delta * spec.spin
+      mesh.current.rotation.x += delta * spec.spin * 0.4
+    }
+  })
+
   return (
-    <Float
-      speed={speed === 0 ? 0 : 1.1}
-      rotationIntensity={0.35}
-      floatIntensity={floatIntensity}
-      floatingRange={[-0.12, 0.12]}
-    >
-      <mesh position={position} scale={scale} rotation={rotation}>
-        <sphereGeometry args={[1, 72, 72]} />
-        <MeshDistortMaterial color={color} distort={distort} speed={speed} roughness={0.92} metalness={0} />
+    <group ref={group} position={position} scale={animate ? 0 : 1}>
+      <mesh
+        ref={mesh}
+        geometry={geometry}
+        scale={[radius * spec.stretch[0], radius * spec.stretch[1], radius * spec.stretch[2]]}
+        rotation={[0, 0, index * 0.7]}
+        castShadow={castShadow}
+      >
+        <MeshDistortMaterial
+          color={spec.color}
+          distort={spec.distort}
+          speed={animate ? 1 + (index % 3) * 0.25 : 0}
+          roughness={0.82}
+          metalness={0}
+          sheen={0.5}
+          sheenRoughness={0.8}
+          sheenColor="#fffaf0"
+          envMapIntensity={0.55}
+        />
       </mesh>
-    </Float>
+    </group>
   )
 }

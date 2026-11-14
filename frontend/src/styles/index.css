@@ -166,8 +166,6 @@
 
   /* Sculptural CSS blobs (non-WebGL decoration) */
   .blob {
-    position: absolute;
-    pointer-events: none;
     border-radius: 58% 42% 55% 45% / 48% 56% 44% 52%;
     box-shadow:
       inset -10px -14px 28px rgb(38 54 26 / 0.18),
