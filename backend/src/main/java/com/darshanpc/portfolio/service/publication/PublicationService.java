@@ -4,6 +4,7 @@ import com.darshanpc.portfolio.dto.portfolio.PortfolioResponse;
 import com.darshanpc.portfolio.entity.AdminUser;
 import com.darshanpc.portfolio.entity.PortfolioPublication;
 import com.darshanpc.portfolio.repository.PortfolioPublicationRepository;
+import com.darshanpc.portfolio.service.DatabaseLocks;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
@@ -30,9 +31,26 @@ public class PublicationService {
     private final PortfolioSnapshotAssembler assembler;
     private final ObjectMapper objectMapper;
     private final Clock clock;
+    private final DatabaseLocks locks;
 
+    /** Publishes the seeded draft if nothing has been published yet (safe if several instances start at once). */
+    @Transactional
+    public boolean publishInitialIfNone(String note) {
+        locks.lockForTransaction("publish");
+        if (publications.findLatestVersionNumber().isPresent()) {
+            return false;
+        }
+        publish(note, null);
+        return true;
+    }
+
+    /**
+     * Publishes the current draft as the next version. Publications are taken one at a
+     * time across all instances, so two simultaneous publishes never collide on a version.
+     */
     @Transactional
     public PortfolioPublication publish(String note, AdminUser publishedBy) {
+        locks.lockForTransaction("publish");
         int nextVersion = publications.findLatestVersionNumber().orElse(0) + 1;
         Instant now = clock.instant();
         PortfolioResponse snapshot = assembler.assemble(nextVersion, now);

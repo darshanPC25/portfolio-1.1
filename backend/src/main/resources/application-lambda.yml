@@ -35,6 +35,13 @@ server:
   # The visitor's address arrives in X-Forwarded-For (set by Vercel).
   forward-headers-strategy: framework
 
+management:
+  health:
+    # Lambda's code folder (/var/task) is read-only and reports 0 bytes free, and
+    # there is no disk to watch: the disk-space check would always say DOWN.
+    diskspace:
+      enabled: false
+
 portfolio:
   storage:
     type: database

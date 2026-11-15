@@ -180,7 +180,10 @@ class SecurityAuditTest {
 
         mvc.perform(get("/actuator/health")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"))
-                .andExpect(jsonPath("$.components").doesNotExist());
+                // Each check's name and status only: no database URLs, versions or disk paths.
+                .andExpect(jsonPath("$.components.db.status").value("UP"))
+                .andExpect(jsonPath("$.components.db.details").doesNotExist())
+                .andExpect(jsonPath("$.components.diskSpace.details").doesNotExist());
         for (String hidden : List.of("/actuator/env", "/actuator/beans", "/actuator/configprops", "/actuator/heapdump")) {
             assertThat(mvc.perform(get(hidden)).andReturn().getResponse().getStatus()).as(hidden).isEqualTo(404);
         }

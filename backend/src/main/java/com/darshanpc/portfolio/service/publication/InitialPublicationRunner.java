@@ -25,9 +25,10 @@ public class InitialPublicationRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         if (publications.findLatestVersionNumber().isPresent()) {
-            return;
+            return;   // the usual case: no lock needed
         }
-        log.info("No published portfolio found; publishing the initial seed content");
-        publicationService.publish("Initial publication of seed content", null);
+        if (publicationService.publishInitialIfNone("Initial publication of seed content")) {
+            log.info("No published portfolio found; published the initial seed content");
+        }
     }
 }

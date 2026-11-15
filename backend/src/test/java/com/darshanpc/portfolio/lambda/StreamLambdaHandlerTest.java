@@ -183,6 +183,17 @@ class StreamLambdaHandlerTest {
     }
 
     @Test
+    void healthIsUpAndIgnoresTheReadOnlyCodeFolder() throws Exception {
+        JsonNode response = call("GET", "/actuator/health", Map.of(), List.of(), null);
+        assertThat(response.path("statusCode").asInt()).as(body(response)).isEqualTo(200);
+        JsonNode health = JSON.readTree(body(response));
+        assertThat(health.path("status").asText()).isEqualTo("UP");
+        assertThat(health.path("components").path("db").path("status").asText()).isEqualTo("UP");
+        assertThat(health.path("components").has("diskSpace")).as("disk check is off on Lambda").isFalse();
+        assertThat(body(response)).doesNotContain("jdbc:").doesNotContain("neon");
+    }
+
+    @Test
     void unknownRoutesAndStudioWithoutSessionAreRefused() throws Exception {
         assertThat(call("GET", "/api/v1/admin/overview", Map.of(), List.of(), null).path("statusCode").asInt()).isEqualTo(401);
         assertThat(call("GET", "/api/v1/projects/nope", Map.of(), List.of(), null).path("statusCode").asInt()).isEqualTo(404);

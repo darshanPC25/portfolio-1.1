@@ -66,6 +66,10 @@ seed content is published once.
 
 ## 2. Backend on AWS Lambda (Mumbai)
 
+> Prefer clicking in the AWS Console instead of the SAM CLI? Follow
+> [DEPLOY-LAMBDA-AWS-CONSOLE.md](DEPLOY-LAMBDA-AWS-CONSOLE.md) for this step, then continue
+> with step 3 below.
+
 ### 2.1 Build
 
 ```bash

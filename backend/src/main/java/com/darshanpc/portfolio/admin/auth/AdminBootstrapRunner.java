@@ -4,6 +4,7 @@ import com.darshanpc.portfolio.config.PortfolioProperties;
 import com.darshanpc.portfolio.entity.AdminUser;
 import com.darshanpc.portfolio.repository.AdminUserRepository;
 import com.darshanpc.portfolio.security.PasswordPolicy;
+import com.darshanpc.portfolio.service.DatabaseLocks;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
  * ADMIN_DISPLAY_NAME, but only while no administrator exists. Afterwards the
  * variables are ignored (and a warning reminds you to remove the password).
  * There is no public registration and no credential in source code.
+ *
+ * <p>Several instances may start at once (AWS Lambda), so the check and the insert
+ * run under a database lock: exactly one of them creates the account.
  */
 @Slf4j
 @Component
@@ -31,11 +35,13 @@ public class AdminBootstrapRunner implements ApplicationRunner {
     private final AdminUserRepository admins;
     private final PasswordEncoder passwordEncoder;
     private final PortfolioProperties properties;
+    private final DatabaseLocks locks;
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
         var bootstrap = properties.admin().bootstrap();
+        locks.lockForTransaction("admin-bootstrap");
 
         if (admins.count() > 0) {
             if (bootstrap.password() != null && !bootstrap.password().isBlank()) {
